@@ -145,3 +145,52 @@ body {
   to   { transform: translateX(-50%); }
 }
 .nx-scroll-x { animation: nx-scroll-x 30s linear infinite; }
+
+/* ------------------------------------------------------------------ */
+/* Staggered entrance for forms and wizard steps                       */
+/* ------------------------------------------------------------------ */
+/* Same curve as .nx-reveal, but the delay is derived from child order  */
+/* via :nth-child so a group needs no per-item bookkeeping. Driven by   */
+/* CSS rather than JS on purpose: rAF-based animation is throttled to a */
+/* standstill on a hidden/backgrounded tab, which would leave form      */
+/* fields stuck at opacity 0. A CSS transition still settles on its     */
+/* final value even when no frames are painted.                        */
+.nx-stagger > * {
+  opacity: 0.001;
+  transform: translateY(20px);
+  transition:
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--stagger-base, 0s) + var(--stagger-step, 0s));
+  will-change: opacity, transform;
+}
+.nx-stagger.is-shown > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Safety net: a transition that never gets to run (tab backgrounded before it
+   started, so no frames are composited) would otherwise leave children pinned
+   at opacity 0.001. Once the animation's own window has elapsed, snap to the
+   final state with no transition so content is guaranteed visible either way. */
+.nx-stagger.is-settled > * {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+.nx-stagger > *:nth-child(1)  { --stagger-step: 0s;    }
+.nx-stagger > *:nth-child(2)  { --stagger-step: 0.07s; }
+.nx-stagger > *:nth-child(3)  { --stagger-step: 0.14s; }
+.nx-stagger > *:nth-child(4)  { --stagger-step: 0.21s; }
+.nx-stagger > *:nth-child(5)  { --stagger-step: 0.28s; }
+.nx-stagger > *:nth-child(6)  { --stagger-step: 0.35s; }
+.nx-stagger > *:nth-child(7)  { --stagger-step: 0.42s; }
+.nx-stagger > *:nth-child(8)  { --stagger-step: 0.49s; }
+.nx-stagger > *:nth-child(n + 9) { --stagger-step: 0.56s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-stagger > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
