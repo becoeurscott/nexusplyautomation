@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zernio Studio
 
-## Getting Started
+Full-parity SaaS dashboard wrapping the Zernio API. Bring your own key.
 
-First, run the development server:
+**Stack:** Next.js 16 · TypeScript · Tailwind v4 · Better-Auth · Drizzle · Postgres (Neon)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Copy env:
+   ```bash
+   cp .env.example .env
+   ```
+2. Fill in `DATABASE_URL` (Neon), generate `BETTER_AUTH_SECRET` and `ENCRYPTION_KEY`:
+   ```bash
+   openssl rand -base64 32   # for BETTER_AUTH_SECRET
+   openssl rand -base64 32   # for ENCRYPTION_KEY
+   ```
+3. Push schema:
+   ```bash
+   npm run db:push
+   ```
+4. Run:
+   ```bash
+   npm run dev
+   ```
+5. Visit `http://localhost:3000`, sign up, go to Settings, paste your Zernio key.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/db/schema.ts` — full DB schema (users, sessions, workspaces, encrypted credentials, drafts, audit log).
+- `src/lib/encryption.ts` — AES-256-GCM helpers for storing Zernio keys.
+- `src/lib/zernio/client.ts` — typed wrapper around every Zernio REST endpoint.
+- `src/lib/zernio/for-workspace.ts` — pulls the encrypted key for a workspace and hands back a ready client.
+- `src/lib/auth.ts` — Better-Auth config (email/password + optional Google).
+- `src/lib/workspace.ts` — `requireSession()` / `requireWorkspace()` route guards, auto-creates a personal workspace on first login.
+- `src/app/app/**` — protected dashboard (Dashboard, Compose, Posts, Queue, Analytics, Inbox, Accounts, Settings).
 
-## Learn More
+## Phase 1 status (this build)
 
-To learn more about Next.js, take a look at the following resources:
+- ✅ Auth (email/password)
+- ✅ Personal workspace auto-provisioning
+- ✅ Encrypted Zernio API key storage + verify-on-save
+- ✅ Dashboard shell with sidebar nav
+- ✅ Compose + Schedule (real end-to-end call to `POST /posts`)
+- ✅ Posts list
+- ✅ Accounts list
+- ⏳ Queue, Analytics, Inbox — placeholder pages (Phases 3–5)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [../zernio-app-plan.md](../zernio-app-plan.md) for the full roadmap.

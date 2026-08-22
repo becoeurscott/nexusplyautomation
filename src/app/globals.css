@@ -1,26 +1,143 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #020817;
+  --foreground: #f5f5f5;
+
+  /* Nexus template tokens (extracted from the Framer mirror) */
+  --nx-bg: #020817;            /* page base — rgb(2,8,23) */
+  --nx-bg-soft: #0c121c;       /* raised section — rgb(12,18,28) */
+  --nx-navy: #071a3d;          /* radial glow navy */
+  --nx-navy-deep: #021d46;
+  --nx-blue: #0a63f4;          /* primary button — rgb(10,99,244) */
+  --nx-blue-hover: #1d58e0;
+  --nx-blue-soft: #73b4ff;
+  --nx-blue-mist: #d1e7ff;
+  --nx-text: #f5f5f5;
+  --nx-text-dim: #a3a3a3;
+  --nx-text-mute: #737373;
+  --nx-border: rgba(255, 255, 255, 0.08);
+  --nx-card: rgba(255, 255, 255, 0.02);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-nx-bg: var(--nx-bg);
+  --color-nx-soft: var(--nx-bg-soft);
+  --color-nx-navy: var(--nx-navy);
+  --color-nx-blue: var(--nx-blue);
+  --color-nx-blue-soft: var(--nx-blue-soft);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--nx-bg);
+  color: var(--nx-text);
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv11", "ss01";
 }
+
+.font-display {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Framer-style appear: 0.4s expo-out, y 20 → 0, opacity .001 → 1      */
+/* Matches the template's {"duration":0.4,"ease":[0.16,1,0.3,1]}       */
+/* ------------------------------------------------------------------ */
+.nx-reveal {
+  opacity: 0.001;
+  transform: translateY(20px);
+  transition:
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+.nx-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Signature Nexus card: edge-lit gradient border on dark glass.       */
+/* Template: linear-gradient(144deg,#73b4ffbf 0%,#0000 40%) as border  */
+.nx-card {
+  position: relative;
+  border-radius: 25px;
+  background: var(--nx-bg-soft);
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+.nx-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(144deg, rgba(115, 180, 255, 0.75) 0%, rgba(0, 0, 0, 0) 40%);
+}
+.nx-card--soft::before {
+  background: linear-gradient(144deg, rgba(209, 231, 255, 0.35) 0%, rgba(0, 0, 0, 0) 40%);
+}
+
+/* Navy radial glow at a section's top — template hero/section treatment */
+.nx-glow-top {
+  background:
+    radial-gradient(46% 50% at 58.9% -3.2%, var(--nx-navy) 0%, rgba(2, 8, 23, 0) 100%),
+    var(--nx-bg);
+}
+.nx-glow-top-strong {
+  background:
+    radial-gradient(50% 75% at 64.1% -11.2%, #12306b 0%, rgba(2, 8, 23, 0) 100%),
+    var(--nx-bg);
+}
+
+/* Section dark gradient — linear-gradient(146deg,#0a0a0a 0%,#021d46 100%) */
+.nx-gradient-panel {
+  background: linear-gradient(146deg, #0a0a0a 0%, var(--nx-navy-deep) 100%);
+}
+
+/* Subtle grid overlay used behind hero */
+.nx-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 10%, transparent 65%);
+}
+
+/* Testimonial marquee */
+@keyframes nx-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.nx-marquee {
+  animation: nx-marquee 45s linear infinite;
+}
+.nx-marquee-reverse {
+  animation: nx-marquee 45s linear infinite reverse;
+}
+.nx-marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-marquee, .nx-marquee-reverse { animation: none; }
+}
+
+/* Integration logo strip scroll */
+@keyframes nx-scroll-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.nx-scroll-x { animation: nx-scroll-x 30s linear infinite; }
