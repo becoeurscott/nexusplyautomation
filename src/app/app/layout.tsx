@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { requireWorkspace } from "@/lib/workspace";
+import { getBalance } from "@/lib/credits";
 import { SignOutButton } from "./_components/sign-out-button";
 import { SidebarNav } from "./_components/sidebar-nav";
 import { PageTransition } from "./_components/page-transition";
 import { TopBarActions } from "./_components/top-bar-actions";
-import { Search, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 /**
  * Light app shell matching the reference mockup:
@@ -13,6 +14,7 @@ import { Search, HelpCircle } from "lucide-react";
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { session, workspace } = await requireWorkspace();
+  const balance = await getBalance(workspace.id);
   const initials = (session.user.name ?? session.user.email)
     .split(" ")
     .map((s) => s[0])
@@ -39,7 +41,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-            General
+            Menu
           </div>
           <SidebarNav />
 
@@ -52,29 +54,28 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="mt-auto space-y-1 border-t border-slate-100 pt-4">
-            <Link
-              href="/app/settings"
+            {/* This said "Help Center" but pointed at Settings. Several screens
+                now tell people to contact support, so it needs to actually
+                reach someone — same address as the site footer. */}
+            <a
+              href="mailto:hello@nexusply.ai"
               className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
             >
-              <HelpCircle className="h-4 w-4" /> Help Center
-            </Link>
+              <HelpCircle className="h-4 w-4" /> Get help
+            </a>
             <SignOutButton />
           </div>
         </aside>
 
         <div className="flex min-w-0 flex-col gap-4">
-          <header className="flex items-center justify-between gap-4 rounded-3xl bg-white px-5 py-3">
-            <label className="relative max-w-md flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                placeholder="Search..."
-                className="w-full rounded-full border border-slate-200 bg-white py-2 pl-9 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-[color:var(--nx-blue)]"
-              />
-            </label>
+          {/* The search box here searched nothing — it was a decorative input
+              that silently swallowed whatever anyone typed into it. */}
+          <header className="flex items-center justify-end gap-4 rounded-3xl bg-white px-5 py-3">
             <TopBarActions
               initials={initials}
               name={session.user.name ?? "You"}
               email={session.user.email}
+              balance={balance}
             />
           </header>
 

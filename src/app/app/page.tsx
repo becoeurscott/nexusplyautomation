@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { getBalance } from "@/lib/credits";
-import { ArrowUpRight, Calendar, Coins, Download, Users2 } from "lucide-react";
+import { ArrowUpRight, Calendar, Check, Coins, Send, Users2 } from "lucide-react";
 
 export default async function DashboardPage() {
   const { session, workspace } = await requireWorkspace();
@@ -22,29 +22,29 @@ export default async function DashboardPage() {
   });
   const firstName = (session.user.name ?? "there").split(" ")[0];
 
-  let accountCount: number | string = "—";
-  let profileCount: number | string = "—";
+  // Two numbers a customer can actually reason about. The previous "Profiles"
+  // tile surfaced an upstream grouping concept that means nothing to someone
+  // running a school page.
+  let accountCount: number | null = null;
+  let postCount: number | null = null;
+  let postsCapped = false;
   if (client) {
     const [a, p] = await Promise.all([
       client.accounts.list().catch(() => null),
-      client.profiles.list().catch(() => null),
+      client.posts.list({ limit: 100 }).catch(() => null),
     ]);
     accountCount = countOf(a);
-    profileCount = countOf(p);
+    postCount = countOf(p);
+    postsCapped = postCount === 100;
   }
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Manage posts, track performance, and collaborate seamlessly.
-          </p>
-        </div>
-        <button className="hidden items-center gap-2 rounded-full bg-[color:var(--nx-blue)] px-4 py-2 text-sm font-semibold text-white hover:bg-[color:var(--nx-blue-hover)] sm:flex">
-          <Download className="h-4 w-4" /> Export
-        </button>
+      <div>
+        <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Write posts, send them to all your accounts, and see how they do.
+        </p>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -75,94 +75,138 @@ export default async function DashboardPage() {
               {balance}
             </div>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-2 text-center text-xs">
+          <p className="mt-3 text-center text-xs text-slate-500">
+            Credits are used each time you post or create something with AI.
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-center text-xs">
             <div className="rounded-xl bg-slate-50 p-2">
               <div className="text-slate-500">Accounts</div>
-              <div className="mt-1 text-base font-bold text-slate-800">{accountCount}</div>
+              <div className="mt-1 text-base font-bold text-slate-800">
+                {accountCount ?? "—"}
+              </div>
             </div>
             <div className="rounded-xl bg-slate-50 p-2">
-              <div className="text-slate-500">Profiles</div>
-              <div className="mt-1 text-base font-bold text-slate-800">{profileCount}</div>
+              <div className="text-slate-500">Posts</div>
+              <div className="mt-1 text-base font-bold text-slate-800">
+                {postCount === null ? "—" : postsCapped ? "100+" : postCount}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {!client && (
-        <div className="mt-4 flex items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <div>
-            <div className="text-sm font-semibold text-amber-900">
-              Your workspace is being set up
-            </div>
-            <div className="text-xs text-amber-800">
-              Publishing will unlock shortly — reach out to support if this takes a while.
-            </div>
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <div className="text-sm font-semibold text-amber-900">
+            We&apos;re still setting up your account
+          </div>
+          <div className="text-xs text-amber-800">
+            You&apos;ll be able to post as soon as your social accounts are linked.
+            There&apos;s nothing you need to do — contact support if it takes more than a
+            day.
           </div>
         </div>
       )}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-slate-100 bg-white p-6 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-semibold">Quick actions</div>
-              <div className="text-xs text-slate-500">Last update: just now</div>
-            </div>
-          </div>
+          <div className="text-sm font-semibold">What would you like to do?</div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <Action
               href="/app/compose"
-              title="Compose a post"
-              body="Cross-post to every account in one shot."
+              title="Create a post"
+              body="Write once and send it to all your accounts."
+              icon={<Send className="h-4 w-4" />}
+            />
+            <Action
+              href="/app/posts"
+              title="See my posts"
+              body="Check what went out and what's lined up."
               icon={<ArrowUpRight className="h-4 w-4" />}
             />
             <Action
-              href="/app/queue"
-              title="Manage your queue"
-              body="Set recurring slots so posts auto-publish."
-              icon={<Calendar className="h-4 w-4" />}
-            />
-            <Action
               href="/app/accounts"
-              title="Connected accounts"
-              body="See what's linked and add more."
+              title="My accounts"
+              body="See which social accounts are connected."
               icon={<Users2 className="h-4 w-4" />}
             />
             <Action
-              href="/app/settings"
-              title="Settings"
-              body="Manage your workspace and credits."
-              icon={<Coins className="h-4 w-4" />}
+              href="/app/queue"
+              title="Set a schedule"
+              body="Choose the times your posts go out."
+              icon={<Calendar className="h-4 w-4" />}
             />
           </div>
         </div>
 
+        {/* Real checklist driven by actual state — this replaced a hardcoded
+            "Reminders" list that showed the same two fake items to everyone. */}
         <div className="rounded-2xl border border-slate-100 bg-white p-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold">Reminders</div>
-            <span className="grid h-7 w-7 place-items-center rounded-full border border-slate-200 text-slate-400">
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </span>
-          </div>
+          <div className="text-sm font-semibold">Getting started</div>
           <ul className="mt-4 space-y-3">
-            {[
-              { t: "09:00 am", l: "Review scheduled posts", p: "Low" },
-              { t: "12:00 pm", l: "Reply to new comments", p: "Low" },
-            ].map((r) => (
-              <li key={r.l} className="rounded-xl bg-slate-50 p-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-800">{r.t}</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {r.p}
-                  </span>
-                </div>
-                <div className="mt-1 text-sm text-slate-700">{r.l}</div>
-              </li>
-            ))}
+            <Step
+              done={(accountCount ?? 0) > 0}
+              label="Connect your social accounts"
+              hint="We do this for you"
+            />
+            <Step
+              done={(postCount ?? 0) > 0}
+              label="Create your first post"
+              href={(accountCount ?? 0) > 0 ? "/app/compose" : undefined}
+              hint={(accountCount ?? 0) > 0 ? "Ready when you are" : "Once accounts are linked"}
+            />
+            <Step done={false} label="Set your posting schedule" hint="Coming soon" />
           </ul>
         </div>
       </div>
     </div>
+  );
+}
+
+function Step({
+  done,
+  label,
+  hint,
+  href,
+}: {
+  done: boolean;
+  label: string;
+  hint: string;
+  href?: string;
+}) {
+  const inner = (
+    <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
+      <span
+        className={
+          "mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full " +
+          (done ? "bg-emerald-500 text-white" : "border border-slate-300 bg-white")
+        }
+        aria-hidden
+      >
+        {done && <Check className="h-3 w-3" />}
+      </span>
+      <span className="min-w-0">
+        <span
+          className={
+            "block text-sm " + (done ? "text-slate-500 line-through" : "text-slate-800")
+          }
+        >
+          {label}
+        </span>
+        <span className="mt-0.5 block text-xs text-slate-500">{hint}</span>
+      </span>
+    </div>
+  );
+  return (
+    <li>
+      {href ? (
+        <Link href={href} className="block transition hover:opacity-80">
+          {inner}
+        </Link>
+      ) : (
+        inner
+      )}
+    </li>
   );
 }
 
@@ -182,22 +226,19 @@ function Action({
       href={href}
       className="group rounded-xl border border-slate-100 bg-white p-4 transition hover:border-[color:var(--nx-blue)] hover:shadow-[0_16px_40px_-24px_rgba(10,99,244,0.5)]"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div className="text-sm font-semibold text-slate-800">{title}</div>
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-[#dbeafe] text-[color:var(--nx-blue)]">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#dbeafe] text-[color:var(--nx-blue)]">
           {icon}
         </span>
       </div>
       <div className="mt-1 text-xs text-slate-500">{body}</div>
-      <div className="mt-3 h-1.5 w-full rounded-full bg-slate-100">
-        <div className="h-1.5 w-2/3 rounded-full bg-[color:var(--nx-blue)]" />
-      </div>
     </Link>
   );
 }
 
-function countOf(raw: unknown): number | string {
+function countOf(raw: unknown): number | null {
   if (Array.isArray(raw)) return raw.length;
   const d = (raw as { data?: unknown[] } | null)?.data;
-  return Array.isArray(d) ? d.length : "—";
+  return Array.isArray(d) ? d.length : null;
 }

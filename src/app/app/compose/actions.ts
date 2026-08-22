@@ -6,11 +6,11 @@ import { db } from "@/db";
 import { auditEvents } from "@/db/schema";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
-import { ZernioApiError } from "@/lib/zernio/client";
+import { friendlyError } from "@/lib/user-message";
 
 const PostSchema = z.object({
-  content: z.string().min(1, "Content is required").max(10_000),
-  accountIds: z.array(z.string()).min(1, "Pick at least one account"),
+  content: z.string().min(1, "Write something to post first").max(10_000),
+  accountIds: z.array(z.string()).min(1, "Choose at least one account to post to"),
   when: z.enum(["now", "schedule"]),
   scheduledAt: z.string().optional(),
   mediaUrls: z.array(z.string().url()).default([]),
@@ -27,7 +27,11 @@ export async function createPost(
   const { workspace, session } = await requireWorkspace();
   const client = await zernioForWorkspace(workspace.id);
   if (!client) {
-    return { ok: false, error: "Connect a Zernio API key first." };
+    return {
+      ok: false,
+      error:
+        "We're still setting up your account, so posting isn't available yet. Contact support if this doesn't clear soon.",
+    };
   }
 
   const parsed = PostSchema.safeParse({
@@ -45,7 +49,7 @@ export async function createPost(
     for (const issue of parsed.error.issues) {
       fieldErrors[issue.path.join(".")] = issue.message;
     }
-    return { ok: false, error: "Invalid form", fieldErrors };
+    return { ok: false, error: "Please check the highlighted fields.", fieldErrors };
   }
 
   const payload = parsed.data;
@@ -58,8 +62,8 @@ export async function createPost(
     if (!payload.scheduledAt) {
       return {
         ok: false,
-        error: "Pick a date/time to schedule.",
-        fieldErrors: { scheduledAt: "Required when scheduling" },
+        error: "Choose the date and time you want this to go out.",
+        fieldErrors: { scheduledAt: "Please pick a date and time" },
       };
     }
     body.scheduledAt = new Date(payload.scheduledAt).toISOString();
@@ -75,12 +79,8 @@ export async function createPost(
     };
     postId = res?.id ?? res?.data?.id ?? "";
   } catch (e) {
-    const msg =
-      e instanceof ZernioApiError
-        ? `Zernio ${e.status}: ${JSON.stringify(e.body)}`
-        : e instanceof Error
-          ? e.message
-          : String(e);
+    // The audit trail keeps the real error; the customer gets plain language
+    // that never names the services behind the product.
     await db.insert(auditEvents).values({
       orgId: workspace.id,
       actorUserId: session.user.id,
@@ -88,9 +88,9 @@ export async function createPost(
       entityType: "post",
       payload: body,
       result: "error",
-      errorMessage: msg,
+      errorMessage: e instanceof Error ? e.message : String(e),
     });
-    return { ok: false, error: msg };
+    return { ok: false, error: friendlyError(e, "post.create") };
   }
 
   await db.insert(auditEvents).values({

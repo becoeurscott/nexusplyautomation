@@ -14,14 +14,22 @@ import {
   Users2,
 } from "lucide-react";
 
+/**
+ * Labels are deliberately everyday words rather than product jargon —
+ * "Create post" over "Compose", "Results" over "Analytics".
+ *
+ * The Inbox entry used to carry a hardcoded "10" badge, so every account was
+ * permanently told it had ten unread messages. A count we can't actually
+ * measure yet is worse than no count.
+ */
 const NAV = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app/compose", label: "Compose", icon: MessageSquarePlus },
-  { href: "/app/posts", label: "Posts", icon: ListChecks },
-  { href: "/app/queue", label: "Queue", icon: Radar },
-  { href: "/app/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/app/inbox", label: "Inbox", icon: Inbox, badge: "10" },
-  { href: "/app/accounts", label: "Accounts", icon: Users2 },
+  { href: "/app/compose", label: "Create post", icon: MessageSquarePlus },
+  { href: "/app/posts", label: "My posts", icon: ListChecks },
+  { href: "/app/queue", label: "Schedule", icon: Radar },
+  { href: "/app/analytics", label: "Results", icon: BarChart3 },
+  { href: "/app/inbox", label: "Messages", icon: Inbox },
+  { href: "/app/accounts", label: "My accounts", icon: Users2 },
   { href: "/app/settings", label: "Settings", icon: Settings },
 ];
 
@@ -58,11 +66,6 @@ export function SidebarNav() {
                 <item.icon className="h-4 w-4" />
                 {item.label}
               </span>
-              {item.badge && !active && (
-                <span className="relative z-10 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  {item.badge}
-                </span>
-              )}
             </motion.div>
           </Link>
         );

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import type { CreatePostResult } from "./actions";
+import { platformLabel } from "../_components/platform-badge";
 
 export type AccountOption = { id: string; name: string; platform: string };
 
@@ -45,7 +46,9 @@ export function ComposeForm({
   return (
     <form action={submit} className="mt-8 space-y-6">
       <div>
-        <label className="mb-2 block text-sm font-medium">Post to</label>
+        <label className="mb-2 block text-sm font-medium">
+          Which accounts should this go to?
+        </label>
         <div className="grid gap-2 sm:grid-cols-2">
           {accounts.map((a) => {
             const active = selected.has(a.id);
@@ -66,8 +69,8 @@ export function ComposeForm({
                   onChange={() => toggle(a.id)}
                   className="h-4 w-4 accent-[color:var(--nx-blue)]"
                 />
-                <span className={`rounded px-1.5 py-0.5 text-xs uppercase ${cls}`}>
-                  {a.platform}
+                <span className={`rounded px-1.5 py-0.5 text-xs ${cls}`}>
+                  {platformLabel(a.platform)}
                 </span>
                 <span className="truncate">{a.name}</span>
               </label>
@@ -81,7 +84,10 @@ export function ComposeForm({
 
       <div>
         <label className="mb-2 block text-sm font-medium">
-          Content <span className="ml-1 text-slate-500">{content.length}</span>
+          Your message{" "}
+          <span className="ml-1 font-normal text-slate-500">
+            ({content.length} characters)
+          </span>
         </label>
         <textarea
           name="content"
@@ -89,7 +95,7 @@ export function ComposeForm({
           onChange={(e) => setContent(e.target.value)}
           rows={6}
           className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-[color:var(--nx-blue)]"
-          placeholder="What do you want to say?"
+          placeholder="What do you want to share?"
         />
         {fieldErrors.content && (
           <div className="mt-1 text-xs text-red-600">{fieldErrors.content}</div>
@@ -97,20 +103,25 @@ export function ComposeForm({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium">Media URLs</label>
+        <label className="mb-2 block text-sm font-medium">
+          Photo or video link{" "}
+          <span className="font-normal text-slate-500">(optional)</span>
+        </label>
         <textarea
           name="mediaUrls"
           rows={2}
-          placeholder="Paste one or more public https URLs, separated by spaces or newlines"
-          className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono text-xs outline-none focus:border-[color:var(--nx-blue)]"
+          placeholder="https://example.com/my-photo.jpg"
+          className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[color:var(--nx-blue)]"
         />
         <p className="mt-1 text-xs text-slate-500">
-          Upload flow lands in the next phase. For now, paste public URLs (e.g. from your CDN).
+          If your photo or video is already online, paste its link here. To add more than
+          one, put each link on its own line. Uploading files straight from your phone or
+          computer is coming soon.
         </p>
       </div>
 
       <fieldset className="space-y-3">
-        <legend className="mb-1 text-sm font-medium">When</legend>
+        <legend className="mb-1 text-sm font-medium">When should it go out?</legend>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="radio"
@@ -120,7 +131,7 @@ export function ComposeForm({
             onChange={() => setWhen("schedule")}
             className="accent-[color:var(--nx-blue)]"
           />
-          Schedule
+          At a time I choose
         </label>
         {when === "schedule" && (
           <input
@@ -139,7 +150,7 @@ export function ComposeForm({
             onChange={() => setWhen("now")}
             className="accent-[color:var(--nx-blue)]"
           />
-          Publish now
+          Send it now
         </label>
       </fieldset>
 
@@ -154,7 +165,7 @@ export function ComposeForm({
         disabled={pending}
         className="rounded-xl bg-[color:var(--nx-blue)] px-6 py-2 font-medium text-white hover:bg-[color:var(--nx-blue-hover)] disabled:opacity-50"
       >
-        {pending ? "Sending…" : when === "now" ? "Publish now" : "Schedule post"}
+        {pending ? "Sending…" : when === "now" ? "Send now" : "Schedule post"}
       </button>
     </form>
   );

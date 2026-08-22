@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
+import { friendlyError } from "@/lib/user-message";
+import { NotReadyYet } from "../_components/not-ready";
 import { ComposeForm, type AccountOption } from "./compose-form";
 import { createPost } from "./actions";
 
@@ -10,7 +11,7 @@ export default async function ComposePage() {
   const client = await zernioForWorkspace(workspace.id);
 
   if (!client) {
-    redirect("/app/settings");
+    return <NotReadyYet title="Create post" what="posting" />;
   }
 
   let accounts: AccountOption[] = [];
@@ -19,27 +20,29 @@ export default async function ComposePage() {
     const raw = await client.accounts.list();
     accounts = normalizeAccounts(raw);
   } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
+    error = friendlyError(e, "compose.accounts.list");
   }
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-3xl font-bold">Compose</h1>
+      <h1 className="font-display text-3xl font-bold">Create post</h1>
       <p className="mt-2 text-slate-500">
-        Cross-post to every account in one shot. Schedule for later or publish now.
+        Write once and send it to all your accounts at the same time — now, or at a time
+        you choose.
       </p>
 
       {error && (
         <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          Zernio error: {error}
+          {error}
         </div>
       )}
 
       {!error && accounts.length === 0 && (
         <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          No connected accounts on your Zernio profile yet.{" "}
-          <Link href="/app/accounts" className="underline">
-            Connect one first
+          You don&apos;t have any accounts connected yet, so there&apos;s nowhere to post
+          to.{" "}
+          <Link href="/app/accounts" className="font-medium underline">
+            See your accounts
           </Link>
           .
         </div>
