@@ -63,7 +63,7 @@ export function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center">
           <span>© {new Date().getFullYear()} Nexusply AI Automation. All rights reserved.</span>
-          <span>Built on Zernio · Higgsfield · CloneViral</span>
+          <span>Made for African schools, creators, and agencies</span>
         </div>
       </div>
     </footer>

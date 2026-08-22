@@ -32,6 +32,10 @@
   --font-display: var(--font-display);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--nx-bg);
   color: var(--nx-text);

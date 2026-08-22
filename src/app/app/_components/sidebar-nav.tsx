@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   BarChart3,
   Inbox,
@@ -32,25 +33,37 @@ export function SidebarNav() {
         const active =
           item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href);
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={
-              "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition " +
-              (active
-                ? "bg-[color:var(--nx-blue)] text-white shadow-[0_8px_20px_-8px_rgba(10,99,244,0.7)]"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900")
-            }
-          >
-            <span className="flex items-center gap-3">
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </span>
-            {item.badge && !active && (
-              <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                {item.badge}
+          <Link key={item.href} href={item.href} className="relative block">
+            <motion.div
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.12 }}
+              className={
+                "relative flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 " +
+                (active ? "" : "hover:bg-slate-50")
+              }
+            >
+              {active && (
+                <motion.div
+                  layoutId="sidebar-active-pill"
+                  className="absolute inset-0 rounded-xl bg-[color:var(--nx-blue)] shadow-[0_8px_20px_-8px_rgba(10,99,244,0.7)]"
+                  transition={{ type: "spring", stiffness: 500, damping: 38 }}
+                />
+              )}
+              <span
+                className={
+                  "relative z-10 flex items-center gap-3 transition-colors duration-200 " +
+                  (active ? "text-white" : "text-slate-600")
+                }
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
               </span>
-            )}
+              {item.badge && !active && (
+                <span className="relative z-10 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {item.badge}
+                </span>
+              )}
+            </motion.div>
           </Link>
         );
       })}

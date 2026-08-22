@@ -1,15 +1,15 @@
+import { Check } from "lucide-react";
 import { Reveal } from "./reveal";
 
-const ROWS: Array<{ fn: string; owner: string; kind: "engine" | "us" }> = [
-  { fn: "Connect accounts, schedule, cross-post, queue", owner: "Zernio", kind: "engine" },
-  { fn: "Analytics, best time to post, comments/mentions inbox", owner: "Zernio", kind: "engine" },
-  { fn: "Images, videos, voiceover, dubbing", owner: "Higgsfield", kind: "engine" },
-  { fn: "Long-form video → shorts, analysis, translation", owner: "CloneViral", kind: "engine" },
-  { fn: "Brand context store", owner: "Nexusply", kind: "us" },
-  { fn: "AI calendar generator", owner: "Nexusply", kind: "us" },
-  { fn: "Script generation in your voice", owner: "Nexusply", kind: "us" },
-  { fn: "Trend + competitor research", owner: "Nexusply", kind: "us" },
-  { fn: "Credit metering + African billing", owner: "Nexusply", kind: "us" },
+const INCLUDED = [
+  "Connect every account and cross-post in one click",
+  "Automated queue that publishes on your schedule",
+  "Analytics, best time to post, and a unified inbox",
+  "AI images, video, and voiceover generation",
+  "Long-form video turned into a week of shorts",
+  "A brand memory that keeps every AI output on-voice",
+  "Trend and competitor research, built in",
+  "Credits, not subscriptions to five different tools",
 ];
 
 export function CapabilityMatrix() {
@@ -18,40 +18,26 @@ export function CapabilityMatrix() {
       <div className="mx-auto max-w-4xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            We Don't Reinvent Wheels. We Ship the Car.
+            Everything Included. Nothing Else to Buy.
           </h2>
           <p className="mt-4 text-lg text-slate-400">
-            Three production-grade engines under the hood, plus the four pieces that make
-            them yours.
+            One subscription replaces the tool stack you're duct-taping together today.
           </p>
         </Reveal>
 
         <Reveal delay={0.2}>
-          <div className="mt-14 overflow-hidden rounded-[25px] border border-white/10 bg-white/[0.02]">
-            <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-white/10 px-6 py-4 text-xs font-semibold uppercase tracking-widest text-slate-500">
-              <span>Function</span>
-              <span>Owned by</span>
-            </div>
-            <ul>
-              {ROWS.map((row) => (
-                <li
-                  key={row.fn}
-                  className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-white/5 px-6 py-4 last:border-b-0"
-                >
-                  <span className="text-sm text-slate-300">{row.fn}</span>
-                  <span
-                    className={
-                      "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold " +
-                      (row.kind === "us"
-                        ? "bg-[color:var(--nx-blue)] text-white"
-                        : "border border-white/15 text-[color:var(--nx-blue-soft)]")
-                    }
-                  >
-                    {row.owner}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <div className="mt-14 grid gap-3 sm:grid-cols-2">
+            {INCLUDED.map((item) => (
+              <div
+                key={item}
+                className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4"
+              >
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color:var(--nx-blue)]">
+                  <Check className="h-3.5 w-3.5 text-white" />
+                </span>
+                <span className="text-sm text-slate-300">{item}</span>
+              </div>
+            ))}
           </div>
         </Reveal>
       </div>

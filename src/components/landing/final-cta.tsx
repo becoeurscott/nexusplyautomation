@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Reveal } from "./reveal";
+import { Tap } from "@/components/tap";
 
 /** Template's closing CTA on the blue-green grain gradient (cta-gradient.png). */
 export function FinalCTA() {
@@ -24,18 +25,22 @@ export function FinalCTA() {
               credits — no credit card required.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link
-                href="/sign-up"
-                className="rounded-[10px] bg-white px-7 py-3.5 text-sm font-bold text-[#021d46] transition hover:bg-slate-100"
-              >
-                Get Started Free
-              </Link>
-              <a
-                href="#pricing"
-                className="rounded-[10px] border border-white/40 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Compare plans
-              </a>
+              <Tap>
+                <Link
+                  href="/sign-up"
+                  className="rounded-[10px] bg-white px-7 py-3.5 text-sm font-bold text-[#021d46] transition hover:bg-slate-100"
+                >
+                  Get Started Free
+                </Link>
+              </Tap>
+              <Tap>
+                <a
+                  href="#pricing"
+                  className="rounded-[10px] border border-white/40 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Compare plans
+                </a>
+              </Tap>
             </div>
             <p className="mt-6 text-xs font-medium text-white/70">
               🔥 30 free credits every month — forever. No credit card required.

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   CURRENCIES,
   CURRENCY_META,
@@ -29,21 +30,29 @@ export function Pricing({ initialCurrency = "KES" as Currency }: { initialCurren
         </div>
 
         <div className="mt-8 flex justify-center">
-          <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+          <div className="relative inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
             {CURRENCIES.map((c) => (
               <button
                 key={c}
                 onClick={() => setCurrency(c)}
-                className={
-                  "rounded-full px-4 py-1.5 text-xs font-semibold transition " +
-                  (currency === c
-                    ? "bg-[color:var(--nx-blue)] text-white"
-                    : "text-slate-400 hover:text-white")
-                }
+                className="relative rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-150"
                 aria-pressed={currency === c}
               >
-                <span className="mr-1">{CURRENCY_META[c].flag}</span>
-                {c}
+                {currency === c && (
+                  <motion.span
+                    layoutId="currency-pill"
+                    className="absolute inset-0 rounded-full bg-[color:var(--nx-blue)]"
+                    transition={{ type: "spring", stiffness: 500, damping: 38 }}
+                  />
+                )}
+                <span
+                  className={
+                    "relative z-10 " + (currency === c ? "text-white" : "text-slate-400 hover:text-white")
+                  }
+                >
+                  <span className="mr-1">{CURRENCY_META[c].flag}</span>
+                  {c}
+                </span>
               </button>
             ))}
           </div>
@@ -70,10 +79,19 @@ export function Pricing({ initialCurrency = "KES" as Currency }: { initialCurren
                 <h3 className="font-display text-lg font-bold text-white">{plan.name}</h3>
                 <p className="mt-1 text-sm text-slate-400">{plan.tagline}</p>
 
-                <div className="mt-6">
-                  <div className="font-display text-4xl font-bold text-white">
-                    {formatPrice(price, currency)}
-                  </div>
+                <div className="mt-6 overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currency}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                      className="font-display text-4xl font-bold text-white"
+                    >
+                      {formatPrice(price, currency)}
+                    </motion.div>
+                  </AnimatePresence>
                   <div className="mt-1 text-xs text-slate-500">
                     per month · {plan.credits.toLocaleString()} credits included
                   </div>
@@ -88,17 +106,19 @@ export function Pricing({ initialCurrency = "KES" as Currency }: { initialCurren
                   ))}
                 </ul>
 
-                <Link
-                  href="/sign-up"
-                  className={
-                    "mt-8 inline-flex justify-center rounded-[10px] px-5 py-2.5 text-sm font-semibold transition " +
-                    (plan.featured
-                      ? "bg-[color:var(--nx-blue)] text-white hover:bg-[color:var(--nx-blue-hover)]"
-                      : "border border-white/15 text-white hover:bg-white/5")
-                  }
-                >
-                  {plan.cta}
-                </Link>
+                <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.12 }}>
+                  <Link
+                    href="/sign-up"
+                    className={
+                      "mt-8 inline-flex w-full justify-center rounded-[10px] px-5 py-2.5 text-sm font-semibold transition " +
+                      (plan.featured
+                        ? "bg-[color:var(--nx-blue)] text-white hover:bg-[color:var(--nx-blue-hover)]"
+                        : "border border-white/15 text-white hover:bg-white/5")
+                    }
+                  >
+                    {plan.cta}
+                  </Link>
+                </motion.div>
               </article>
             );
           })}

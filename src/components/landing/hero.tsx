@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "./reveal";
+import { Tap } from "@/components/tap";
 
 /**
  * Template structure: centered hero on dark base with navy radial glow,
@@ -29,17 +30,22 @@ export function Hero() {
         </Reveal>
 
         <Reveal delay={0.2}>
-          <h1 className="font-display mx-auto mt-7 max-w-4xl text-5xl font-bold leading-[1.06] text-white sm:text-6xl lg:text-7xl">
-            Run Your Entire Social Presence on{" "}
+          <h1 className="font-display mx-auto mt-7 max-w-3xl text-6xl font-bold leading-[1.05] text-white sm:text-7xl lg:text-8xl">
+            Nexusply{" "}
             <span className="bg-gradient-to-r from-[#73b4ff] via-[#0a63f4] to-[#73b4ff] bg-clip-text italic text-transparent">
-              Autopilot
-            </span>{" "}
-            with Intelligent AI
+              Automation
+            </span>
           </h1>
         </Reveal>
 
-        <Reveal delay={0.4}>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
+        <Reveal delay={0.35}>
+          <p className="mx-auto mt-6 max-w-2xl text-xl font-semibold text-slate-200">
+            Run your entire social presence on autopilot with intelligent AI.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.5}>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-400">
             Plan, generate, publish, listen, and learn — across every platform. Built for
             African schools, creators, and SMBs. Paid via M-Pesa, MTN MoMo, Orange, or card.
           </p>
@@ -47,18 +53,22 @@ export function Hero() {
 
         <Reveal delay={0.6}>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/sign-up"
-              className="rounded-[10px] bg-[color:var(--nx-blue)] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_-8px_rgba(10,99,244,0.9)] transition hover:bg-[color:var(--nx-blue-hover)]"
-            >
-              Get Started Free
-            </Link>
-            <a
-              href="#pricing"
-              className="rounded-[10px] border border-white/15 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/5"
-            >
-              See pricing
-            </a>
+            <Tap>
+              <Link
+                href="/sign-up"
+                className="rounded-[10px] bg-[color:var(--nx-blue)] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_-8px_rgba(10,99,244,0.9)] transition hover:bg-[color:var(--nx-blue-hover)]"
+              >
+                Get Started Free
+              </Link>
+            </Tap>
+            <Tap>
+              <a
+                href="#pricing"
+                className="rounded-[10px] border border-white/15 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/5"
+              >
+                See pricing
+              </a>
+            </Tap>
           </div>
           <p className="mt-5 text-xs text-slate-500">
             30 free credits monthly · No credit card · Cancel any time

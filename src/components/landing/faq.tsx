@@ -13,8 +13,8 @@ const QS = [
     a: "Every action has a small credit cost: 1 credit per scheduled post, 3 for an AI caption, 20 for a generated video. Your plan tops up monthly; top-up packs are always available. Failed posts refund automatically.",
   },
   {
-    q: "Do I need a Zernio account of my own?",
-    a: "Yes. Nexusply plugs into your existing Zernio (Higgsfield / CloneViral) accounts using your own API keys — encrypted at rest, only the last four characters ever shown back to you.",
+    q: "How does Nexusply connect to my social accounts?",
+    a: "You link each account once from Settings. Credentials are encrypted at rest — only the last four characters of any key are ever shown back to you, and we never see your platform passwords.",
   },
   {
     q: "What happens if a post fails to publish?",

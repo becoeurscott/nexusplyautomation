@@ -4,7 +4,7 @@ const STEPS = [
   {
     n: "01",
     title: "Connect",
-    body: "Link your social accounts via Zernio's OAuth. We never see your platform passwords.",
+    body: "Securely link your social accounts in one click. We never see your platform passwords.",
   },
   {
     n: "02",

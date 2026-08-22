@@ -18,8 +18,8 @@ export function Integrations() {
             Plugs Into the Platforms You Already Use
           </h2>
           <p className="mt-4 text-lg text-slate-400">
-            Zernio connects your accounts, Higgsfield renders your media, CloneViral cuts
-            your clips — Nexusply conducts the orchestra.
+            One connection per account. Publish everywhere, generate media natively, and
+            never touch a second tool again.
           </p>
         </Reveal>
 
@@ -42,7 +42,7 @@ export function Integrations() {
 
         <Reveal delay={0.4}>
           <p className="mt-10 text-center text-xs uppercase tracking-widest text-slate-500">
-            Powered by Zernio · Higgsfield · CloneViral · Claude · Gemini · Flutterwave
+            Bank-grade encryption · 99.9% uptime · Built for African payment rails
           </p>
         </Reveal>
       </div>
