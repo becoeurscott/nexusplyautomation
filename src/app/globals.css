@@ -66,6 +66,14 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+/* Safety net, same as .nx-stagger.is-settled: a transition that never gets to
+   run (tab not compositing frames) would leave the section pinned at opacity
+   0.001. Snap to the end state once the animation's window has elapsed. */
+.nx-reveal.is-settled {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .nx-reveal {
     opacity: 1;

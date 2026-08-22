@@ -59,6 +59,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${interTight.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Entrance animations start from opacity 0 and are revealed by JS, so
+            without it the whole page would render blank. Show everything. */}
+        <noscript>
+          <style>{`
+            .nx-reveal, .nx-stagger > * {
+              opacity: 1 !important;
+              transform: none !important;
+              transition: none !important;
+            }
+          `}</style>
+        </noscript>
         <RouteProgress />
         <PageFade>{children}</PageFade>
       </body>
