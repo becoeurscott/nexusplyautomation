@@ -22,6 +22,40 @@ export const CURRENCY_META: Record<
   USD: { symbol: "$", name: "US Dollar", flag: "🌍", locale: "en-US" },
 };
 
+/**
+ * FX anchors — USD is the single source of truth; every local price is
+ * derived from it so the tiers stay consistent across currencies.
+ * Update these when rates move (admin-editable later). Mid-market, Aug 2026.
+ */
+export const USD_RATES: Record<Currency, number> = {
+  USD: 1,
+  KES: 129.5,
+  NGN: 1355,
+  XOF: 562,
+};
+
+/** Round to a "clean" local figure so prices look deliberate, not converted. */
+function roundLocal(amount: number, currency: Currency): number {
+  if (amount === 0) return 0;
+  switch (currency) {
+    case "USD":
+      return Math.round(amount * 100) / 100;
+    case "KES":
+      return amount < 1000 ? Math.round(amount / 10) * 10 : Math.round(amount / 50) * 50;
+    case "NGN":
+      return amount < 10_000 ? Math.round(amount / 100) * 100 : Math.round(amount / 500) * 500;
+    case "XOF":
+      return amount < 10_000 ? Math.round(amount / 100) * 100 : Math.round(amount / 500) * 500;
+  }
+}
+
+/** Build the per-currency price map from a USD amount. */
+export function localize(usd: number): Record<Currency, number> {
+  return Object.fromEntries(
+    CURRENCIES.map((c) => [c, roundLocal(usd * USD_RATES[c], c)]),
+  ) as Record<Currency, number>;
+}
+
 export type PlanCode = "starter" | "school" | "institute" | "agency";
 
 export type PlanRow = {
@@ -42,7 +76,7 @@ export const PLANS: PlanRow[] = [
     code: "starter",
     name: "Starter",
     tagline: "For pilots and solo creators finding their footing.",
-    price: { KES: 0, NGN: 0, XOF: 0, USD: 0 },
+    price: localize(0),
     credits: 30,
     accounts: 3,
     seats: 1,
@@ -58,7 +92,7 @@ export const PLANS: PlanRow[] = [
     code: "school",
     name: "School",
     tagline: "For schools, community pages, and side hustles.",
-    price: { KES: 500, NGN: 3_500, XOF: 3_000, USD: 3 },
+    price: localize(3),
     credits: 300,
     accounts: 10,
     seats: 3,
@@ -74,7 +108,7 @@ export const PLANS: PlanRow[] = [
     code: "institute",
     name: "Institute",
     tagline: "For institutes, SMBs, and growing brands.",
-    price: { KES: 1_500, NGN: 10_000, XOF: 9_000, USD: 9 },
+    price: localize(9),
     credits: 1_200,
     accounts: 40,
     seats: 10,
@@ -91,7 +125,7 @@ export const PLANS: PlanRow[] = [
     code: "agency",
     name: "Agency",
     tagline: "For agencies and multi-client operators.",
-    price: { KES: 5_000, NGN: 35_000, XOF: 30_000, USD: 30 },
+    price: localize(30),
     credits: 5_000,
     accounts: "∞",
     seats: 25,
@@ -106,10 +140,10 @@ export const PLANS: PlanRow[] = [
 ];
 
 export const TOP_UP_PACKS: Array<{ credits: number; price: Record<Currency, number> }> = [
-  { credits: 100, price: { KES: 200, NGN: 1_500, XOF: 1_200, USD: 1.5 } },
-  { credits: 500, price: { KES: 900, NGN: 6_500, XOF: 5_500, USD: 6 } },
-  { credits: 2_000, price: { KES: 3_200, NGN: 22_000, XOF: 19_000, USD: 20 } },
-  { credits: 10_000, price: { KES: 13_500, NGN: 95_000, XOF: 82_000, USD: 85 } },
+  { credits: 100, price: localize(1.5) },
+  { credits: 500, price: localize(6) },
+  { credits: 2_000, price: localize(20) },
+  { credits: 10_000, price: localize(85) },
 ];
 
 /**
