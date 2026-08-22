@@ -16,15 +16,14 @@ const client = postgres(url, { ssl: "prefer", prepare: false });
 const db = drizzle(client);
 
 async function main() {
-  // Plans — one row per plan code, priced in USD as the canonical currency;
-  // per-currency display comes from src/lib/i18n/pricing.ts.
+  // Plans — one row per plan code. USD only, cost-plus (see src/lib/i18n/pricing.ts).
   for (const [i, p] of PLANS.entries()) {
     await db
       .insert(plans)
       .values({
         code: p.code,
         name: p.name,
-        monthlyPriceLocal: String(p.price.USD),
+        monthlyPriceLocal: String(p.priceUsd),
         currency: "USD",
         includedCredits: p.credits,
         perChannelCap: p.accounts === "∞" ? null : p.accounts,
@@ -37,7 +36,7 @@ async function main() {
         target: plans.code,
         set: {
           name: p.name,
-          monthlyPriceLocal: String(p.price.USD),
+          monthlyPriceLocal: String(p.priceUsd),
           includedCredits: p.credits,
           perChannelCap: p.accounts === "∞" ? null : p.accounts,
           seatCap: p.seats,
@@ -49,22 +48,18 @@ async function main() {
   }
   console.log(`plans: ${PLANS.length}`);
 
-  // Top-up packs — one row per (credits, currency)
+  // Top-up packs — USD only.
   await db.delete(topUpProducts);
-  let n = 0;
   for (const [i, pack] of TOP_UP_PACKS.entries()) {
-    for (const [currency, price] of Object.entries(pack.price)) {
-      await db.insert(topUpProducts).values({
-        credits: pack.credits,
-        priceLocal: String(price),
-        currency,
-        active: true,
-        sortOrder: i,
-      });
-      n++;
-    }
+    await db.insert(topUpProducts).values({
+      credits: pack.credits,
+      priceLocal: String(pack.priceUsd),
+      currency: "USD",
+      active: true,
+      sortOrder: i,
+    });
   }
-  console.log(`top_up_products: ${n}`);
+  console.log(`top_up_products: ${TOP_UP_PACKS.length}`);
 
   // Credit prices
   for (const p of CREDIT_PRICE_SEED) {

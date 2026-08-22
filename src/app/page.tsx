@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { Nav } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
 import { Benefits } from "@/components/landing/benefits";
@@ -11,10 +10,8 @@ import { Testimonials } from "@/components/landing/testimonials";
 import { FAQ } from "@/components/landing/faq";
 import { FinalCTA } from "@/components/landing/final-cta";
 import { Footer } from "@/components/landing/footer";
-import { detectCurrencyFromHeaders } from "@/lib/i18n/pricing";
 
-export default async function LandingPage() {
-  const currency = detectCurrencyFromHeaders(await headers());
+export default function LandingPage() {
   return (
     <>
       <Nav />
@@ -25,7 +22,7 @@ export default async function LandingPage() {
         <Integrations />
         <CapabilityMatrix />
         <HowItWorks />
-        <Pricing initialCurrency={currency} />
+        <Pricing />
         <Testimonials />
         <FAQ />
         <FinalCTA />

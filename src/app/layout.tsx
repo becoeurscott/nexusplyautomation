@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight } from "next/font/google";
 import { RouteProgress } from "@/components/route-progress";
+import { PageFade } from "@/components/page-fade";
 import "./globals.css";
 
 const inter = Inter({
@@ -59,7 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <RouteProgress />
-        {children}
+        <PageFade>{children}</PageFade>
       </body>
     </html>
   );

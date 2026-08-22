@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { signIn } from "@/lib/auth-client";
+import { Logo } from "@/components/landing/brand";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -26,26 +28,28 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-slate-950 px-6 text-slate-100">
-      <div className="w-full max-w-sm space-y-6">
+    <main className="nx-glow-top-strong relative grid min-h-dvh place-items-center overflow-hidden bg-[color:var(--nx-bg)] px-6 text-white">
+      <div className="absolute inset-0 nx-grid" aria-hidden />
+      <div className="relative w-full max-w-sm space-y-6">
         <div className="text-center">
-          <div className="text-xl font-bold">
-            <span className="text-indigo-400">◆</span> Zernio Studio
+          <div className="flex justify-center">
+            <Logo size={32} />
           </div>
-          <h1 className="mt-4 text-2xl font-bold">Sign in</h1>
+          <h1 className="font-display mt-6 text-2xl font-bold">Welcome back</h1>
+          <p className="mt-1 text-sm text-slate-400">Sign in to your dashboard</p>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <label className="block text-sm">
+        <form onSubmit={onSubmit} className="nx-card nx-card--soft space-y-4 p-6">
+          <label className="block text-sm text-slate-300">
             Email
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 outline-none focus:border-indigo-500"
+              className="mt-1 block w-full rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-[color:var(--nx-blue)]"
             />
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm text-slate-300">
             Password
             <input
               type="password"
@@ -53,21 +57,27 @@ export default function SignInPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="mt-1 block w-full rounded-md border border-slate-800 bg-slate-900 px-3 py-2 outline-none focus:border-indigo-500"
+              className="mt-1 block w-full rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-[color:var(--nx-blue)]"
             />
           </label>
-          {err && <div className="rounded-md bg-red-950 p-2 text-sm text-red-200">{err}</div>}
-          <button
+          {err && (
+            <div className="rounded-[10px] border border-red-900/50 bg-red-950/50 p-2 text-sm text-red-300">
+              {err}
+            </div>
+          )}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.12 }}
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-indigo-500 py-2 font-medium hover:bg-indigo-400 disabled:opacity-50"
+            className="w-full rounded-[10px] bg-[color:var(--nx-blue)] py-2.5 font-semibold text-white transition hover:bg-[color:var(--nx-blue-hover)] disabled:opacity-50"
           >
             {loading ? "Signing in…" : "Sign in"}
-          </button>
+          </motion.button>
         </form>
         <div className="text-center text-sm text-slate-400">
           No account?{" "}
-          <Link href="/sign-up" className="text-indigo-400 hover:underline">
+          <Link href="/sign-up" className="text-[color:var(--nx-blue-soft)] hover:underline">
             Sign up
           </Link>
         </div>

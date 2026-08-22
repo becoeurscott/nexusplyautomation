@@ -24,8 +24,8 @@ const BENEFITS = [
     h: 108,
   },
   {
-    title: "Pay in Your Own Currency",
-    body: "KES, NGN, XOF, or USD — with M-Pesa, MTN MoMo, Orange Money, or any bank card.",
+    title: "Pay However You Bank",
+    body: "Simple USD pricing, charged through M-Pesa, MTN MoMo, Orange Money, or any bank card.",
     img: "/img/nexus/benefit-4.png",
     w: 919,
     h: 142,

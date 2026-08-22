@@ -79,7 +79,7 @@ export const organizations = pgTable("organizations", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   country: text("country").notNull().default("KE"), // ISO 3166 alpha-2
-  currency: text("currency").notNull().default("KES"), // ISO 4217
+  currency: text("currency").notNull().default("USD"), // ISO 4217 — all pricing is USD-denominated
   timezone: text("timezone").notNull().default("Africa/Nairobi"),
   planId: uuid("plan_id"),
   creditBalanceCached: integer("credit_balance_cached").notNull().default(0),
