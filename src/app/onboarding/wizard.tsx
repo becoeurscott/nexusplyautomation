@@ -58,10 +58,15 @@ export function OnboardingWizard({
   const go = (next: number) => setStep([next, next > step ? 1 : -1]);
 
   return (
-    <main className="nx-glow-top-strong relative flex min-h-dvh flex-col overflow-hidden bg-[color:var(--nx-bg)] px-6 py-10 text-white">
+    // overflow-x-hidden (not overflow-hidden) so the ±48px step slide is
+    // clipped horizontally while the page can still scroll if a step ever
+    // grows taller than the viewport.
+    <main className="nx-glow-top-strong relative flex min-h-dvh flex-col overflow-x-hidden bg-[color:var(--nx-bg)] px-6 py-10 text-white">
       <div className="absolute inset-0 nx-grid" aria-hidden />
 
-      <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col">
+      {/* my-auto rather than justify-center: it centres the block the same way
+          but doesn't make the top unreachable when content overflows. */}
+      <div className="relative mx-auto my-auto w-full max-w-lg">
         <StaggerGroup className="flex items-center justify-between">
           <StaggerItem>
             <Logo size={28} />
@@ -82,7 +87,7 @@ export function OnboardingWizard({
 
         <ProgressTrail step={step} />
 
-        <div className="relative mt-9 flex-1">
+        <div className="relative mt-9 min-h-[460px]">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={step}
@@ -92,7 +97,7 @@ export function OnboardingWizard({
               animate="center"
               exit="exit"
               transition={{ duration: 0.4, ease: EASE }}
-              className="absolute inset-0"
+              className="absolute inset-0 flex items-center justify-center"
             >
               {step === 0 && (
                 <BrandBasicsStep orgName={orgName} onNext={() => go(1)} />
@@ -227,9 +232,9 @@ function StepCard({
   className?: string;
 }) {
   return (
-    <div className="relative h-full">
+    <div className="relative w-full">
       <div
-        className={`nx-card nx-card--soft relative z-10 h-full overflow-y-auto p-7 ${className}`}
+        className={`nx-card nx-card--soft relative z-10 max-h-full w-full overflow-y-auto p-7 ${className}`}
       >
         {children}
       </div>
