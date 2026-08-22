@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { zernioCredentials } from "@/db/schema";
+import { redirect } from "next/navigation";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { getBalance } from "@/lib/credits";
@@ -10,10 +8,11 @@ import { ArrowUpRight, Calendar, Coins, Download, Users2 } from "lucide-react";
 export default async function DashboardPage() {
   const { session, workspace } = await requireWorkspace();
 
-  const creds = await db.query.zernioCredentials.findFirst({
-    where: eq(zernioCredentials.orgId, workspace.id),
-  });
+  if (!workspace.onboardingCompletedAt) {
+    redirect("/onboarding");
+  }
 
+  const client = await zernioForWorkspace(workspace.id);
   const balance = await getBalance(workspace.id);
   const today = new Date().toLocaleDateString("en-GB", {
     weekday: "short",
@@ -25,16 +24,13 @@ export default async function DashboardPage() {
 
   let accountCount: number | string = "—";
   let profileCount: number | string = "—";
-  if (creds) {
-    const client = await zernioForWorkspace(workspace.id);
-    if (client) {
-      const [a, p] = await Promise.all([
-        client.accounts.list().catch(() => null),
-        client.profiles.list().catch(() => null),
-      ]);
-      accountCount = countOf(a);
-      profileCount = countOf(p);
-    }
+  if (client) {
+    const [a, p] = await Promise.all([
+      client.accounts.list().catch(() => null),
+      client.profiles.list().catch(() => null),
+    ]);
+    accountCount = countOf(a);
+    profileCount = countOf(p);
   }
 
   return (
@@ -92,20 +88,16 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {!creds && (
+      {!client && (
         <div className="mt-4 flex items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
           <div>
-            <div className="text-sm font-semibold text-amber-900">Connect your Zernio key</div>
+            <div className="text-sm font-semibold text-amber-900">
+              Your workspace is being set up
+            </div>
             <div className="text-xs text-amber-800">
-              Posting, analytics, and inbox unlock once a key is saved. Encrypted at rest.
+              Publishing will unlock shortly — reach out to support if this takes a while.
             </div>
           </div>
-          <Link
-            href="/app/settings"
-            className="shrink-0 rounded-full bg-amber-900 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-800"
-          >
-            Go to Settings
-          </Link>
         </div>
       )}
 
@@ -138,8 +130,8 @@ export default async function DashboardPage() {
             />
             <Action
               href="/app/settings"
-              title="Settings & keys"
-              body="Rotate your Zernio key, manage credits."
+              title="Settings"
+              body="Manage your workspace and credits."
               icon={<Coins className="h-4 w-4" />}
             />
           </div>

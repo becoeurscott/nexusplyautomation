@@ -7,24 +7,31 @@ import { motion } from "framer-motion";
 import { signIn } from "@/lib/auth-client";
 import { Logo } from "@/components/landing/brand";
 
+type Status = "idle" | "submitting" | "redirecting" | "error";
+
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const busy = status === "submitting" || status === "redirecting";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
-    setLoading(true);
+    setStatus("submitting");
     const res = await signIn.email({ email, password });
-    setLoading(false);
     if (res.error) {
+      setStatus("error");
       setErr(res.error.message ?? "Sign-in failed");
       return;
     }
-    router.push("/app");
+    // Keep the button busy through the navigation — the first hit to /app
+    // can take a few seconds, and resetting to idle here made it look like
+    // sign-in had silently failed.
+    setStatus("redirecting");
+    router.push("/onboarding");
   }
 
   return (
@@ -46,7 +53,8 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-[color:var(--nx-blue)]"
+              disabled={busy}
+              className="mt-1 block w-full rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-[color:var(--nx-blue)] disabled:opacity-60"
             />
           </label>
           <label className="block text-sm text-slate-300">
@@ -57,10 +65,11 @@ export default function SignInPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="mt-1 block w-full rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-[color:var(--nx-blue)]"
+              disabled={busy}
+              className="mt-1 block w-full rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-[color:var(--nx-blue)] disabled:opacity-60"
             />
           </label>
-          {err && (
+          {status === "error" && err && (
             <div className="rounded-[10px] border border-red-900/50 bg-red-950/50 p-2 text-sm text-red-300">
               {err}
             </div>
@@ -69,10 +78,20 @@ export default function SignInPage() {
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.12 }}
             type="submit"
-            disabled={loading}
-            className="w-full rounded-[10px] bg-[color:var(--nx-blue)] py-2.5 font-semibold text-white transition hover:bg-[color:var(--nx-blue-hover)] disabled:opacity-50"
+            disabled={busy}
+            className="flex w-full items-center justify-center gap-2 rounded-[10px] bg-[color:var(--nx-blue)] py-2.5 font-semibold text-white transition hover:bg-[color:var(--nx-blue-hover)] disabled:opacity-70"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {status === "redirecting" ? (
+              <>
+                <Spinner /> Taking you to your dashboard…
+              </>
+            ) : status === "submitting" ? (
+              <>
+                <Spinner /> Signing in…
+              </>
+            ) : (
+              "Sign in"
+            )}
           </motion.button>
         </form>
         <div className="text-center text-sm text-slate-400">
@@ -83,5 +102,14 @@ export default function SignInPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
   );
 }

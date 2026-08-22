@@ -83,6 +83,7 @@ export const organizations = pgTable("organizations", {
   timezone: text("timezone").notNull().default("Africa/Nairobi"),
   planId: uuid("plan_id"),
   creditBalanceCached: integer("credit_balance_cached").notNull().default(0),
+  onboardingCompletedAt: timestamp("onboarding_completed_at", { withTimezone: true }),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

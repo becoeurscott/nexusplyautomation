@@ -9,6 +9,10 @@ import { usePathname } from "next/navigation";
  * this doesn't re-fire on every dashboard sub-page — that's already handled
  * by the finer-grained `PageTransition` inside `app/app/layout.tsx`. Nesting
  * both would double-animate the same navigation.
+ *
+ * Deliberately NOT `mode="wait"` — see PageTransition's comment. Blocking on
+ * an exit animation that a backgrounded tab may never fire would strand a
+ * user on the previous section indefinitely.
  */
 function sectionKey(pathname: string): string {
   return pathname.startsWith("/app") ? "app" : pathname;
@@ -17,7 +21,7 @@ function sectionKey(pathname: string): string {
 export function PageFade({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence initial={false}>
       <motion.div
         key={sectionKey(pathname)}
         initial={{ opacity: 0 }}
