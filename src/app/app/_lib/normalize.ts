@@ -7,15 +7,41 @@
  * no usable data simply doesn't render.
  */
 
-export function rows(raw: unknown): Record<string, unknown>[] {
-  const list = Array.isArray(raw)
-    ? raw
-    : Array.isArray((raw as { data?: unknown[] } | null)?.data)
-      ? (raw as { data: unknown[] }).data
-      : [];
+export function rows(
+  raw: unknown,
+  ...preferredKeys: string[]
+): Record<string, unknown>[] {
+  const list = pickList(raw, preferredKeys);
   return list.filter(
     (r): r is Record<string, unknown> => typeof r === "object" && r !== null,
   );
+}
+
+/**
+ * Finds the collection in a response.
+ *
+ * The upstream API names its collections after the resource — `{accounts:[]}`,
+ * `{profiles:[]}`, `{posts:[], pagination:{}}` — rather than using a uniform
+ * `data` envelope. Reading only `data` meant every list came back empty, which
+ * would have looked exactly like "you have no accounts" instead of a parsing
+ * bug, and only once real accounts were connected.
+ *
+ * Order: a bare array, then `data`, then any caller-named key, then the first
+ * array-valued property. That last fallback is what keeps a renamed or
+ * not-yet-seen collection from silently reading as empty.
+ */
+function pickList(raw: unknown, preferredKeys: string[]): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw !== "object" || raw === null) return [];
+  const rec = raw as Record<string, unknown>;
+
+  for (const key of ["data", ...preferredKeys]) {
+    if (Array.isArray(rec[key])) return rec[key] as unknown[];
+  }
+  for (const value of Object.values(rec)) {
+    if (Array.isArray(value)) return value;
+  }
+  return [];
 }
 
 export function str(rec: Record<string, unknown>, ...keys: string[]): string | null {
@@ -59,7 +85,7 @@ export type SimplePost = {
 };
 
 export function toPost(rec: Record<string, unknown>): SimplePost | null {
-  const id = str(rec, "id", "postId");
+  const id = str(rec, "id", "_id", "postId");
   if (!id) return null;
   return {
     id,
@@ -71,7 +97,7 @@ export function toPost(rec: Record<string, unknown>): SimplePost | null {
 }
 
 export function toPosts(raw: unknown): SimplePost[] {
-  return rows(raw)
+  return rows(raw, "posts")
     .map(toPost)
     .filter((p): p is SimplePost => p !== null);
 }

@@ -5,6 +5,7 @@ import { friendlyError } from "@/lib/user-message";
 import { NotReadyYet } from "../_components/not-ready";
 import { ComposeForm, type AccountOption } from "./compose-form";
 import { createPost } from "./actions";
+import { rows, str } from "../_lib/normalize";
 
 export default async function ComposePage() {
   const { workspace } = await requireWorkspace();
@@ -54,21 +55,14 @@ export default async function ComposePage() {
 }
 
 function normalizeAccounts(raw: unknown): AccountOption[] {
-  const rows: unknown[] = Array.isArray(raw)
-    ? raw
-    : Array.isArray((raw as { data?: unknown[] })?.data)
-      ? (raw as { data: unknown[] }).data
-      : [];
-  return rows
-    .map((r) => {
-      if (typeof r !== "object" || r === null) return null;
-      const rec = r as Record<string, unknown>;
-      const id = typeof rec.id === "string" ? rec.id : null;
+  return rows(raw, "accounts")
+    .map((rec) => {
+      const id = str(rec, "id", "_id");
       if (!id) return null;
       return {
         id,
-        name: typeof rec.name === "string" ? rec.name : id,
-        platform: typeof rec.platform === "string" ? rec.platform : "unknown",
+        name: str(rec, "name", "username", "handle") ?? id,
+        platform: str(rec, "platform", "provider") ?? "unknown",
       };
     })
     .filter((x): x is AccountOption => x !== null);

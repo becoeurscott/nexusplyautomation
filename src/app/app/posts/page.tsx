@@ -4,15 +4,8 @@ import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { friendlyError } from "@/lib/user-message";
 import { NotReadyYet } from "../_components/not-ready";
 import { StatusPill } from "../_components/status-pill";
+import { toPosts, type SimplePost } from "../_lib/normalize";
 
-type PostRow = {
-  id: string;
-  status: string;
-  content: string;
-  scheduledAt?: string;
-  publishedAt?: string;
-  accounts?: { platform: string; name: string }[];
-};
 
 export default async function PostsPage() {
   const { workspace } = await requireWorkspace();
@@ -21,13 +14,10 @@ export default async function PostsPage() {
     return <NotReadyYet title="My posts" what="your posts" />;
   }
 
-  let posts: PostRow[] = [];
+  let posts: SimplePost[] = [];
   let error: string | null = null;
   try {
-    const raw = (await client.posts.list({ limit: 50 })) as {
-      data?: PostRow[];
-    } | PostRow[];
-    posts = Array.isArray(raw) ? raw : (raw.data ?? []);
+    posts = toPosts(await client.posts.list({ limit: 50 }));
   } catch (e) {
     error = friendlyError(e, "posts.list");
   }
@@ -95,7 +85,7 @@ export default async function PostsPage() {
  * Upstream sends ISO timestamps, which rendered raw as
  * "2026-08-22T09:15:00.000Z". Show something readable, and say which it is.
  */
-function formatWhen(publishedAt?: string, scheduledAt?: string): string {
+function formatWhen(publishedAt?: string | null, scheduledAt?: string | null): string {
   const raw = publishedAt ?? scheduledAt;
   if (!raw) return "";
   const d = new Date(raw);

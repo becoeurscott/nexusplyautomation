@@ -1,6 +1,7 @@
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { friendlyError } from "@/lib/user-message";
+import { rows, str } from "../_lib/normalize";
 import { NotReadyYet } from "../_components/not-ready";
 import { PlatformBadge } from "../_components/platform-badge";
 
@@ -21,8 +22,11 @@ export default async function AccountsPage() {
   let accounts: Account[] = [];
   let error: string | null = null;
   try {
-    const raw = (await client.accounts.list()) as { data?: Account[] } | Account[];
-    accounts = Array.isArray(raw) ? raw : (raw.data ?? []);
+    accounts = rows(await client.accounts.list(), "accounts").map((r) => ({
+      id: str(r, "id", "_id") ?? "",
+      name: str(r, "name", "username", "handle") ?? undefined,
+      platform: str(r, "platform", "provider") ?? undefined,
+    }));
   } catch (e) {
     error = friendlyError(e, "accounts.list");
   }

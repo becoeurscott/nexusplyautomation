@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
+import { rows, str } from "@/app/app/_lib/normalize";
 import { OnboardingWizard, type AccountSummary } from "./wizard";
 
 export default async function OnboardingPage() {
@@ -14,20 +15,14 @@ export default async function OnboardingPage() {
   let accounts: AccountSummary[] = [];
   if (client) {
     try {
-      const raw = (await client.accounts.list()) as
-        | { data?: unknown[] }
-        | unknown[];
-      const rows = Array.isArray(raw) ? raw : (raw.data ?? []);
-      accounts = rows
+      accounts = rows(await client.accounts.list(), "accounts")
         .map((r) => {
-          if (typeof r !== "object" || r === null) return null;
-          const rec = r as Record<string, unknown>;
-          const id = typeof rec.id === "string" ? rec.id : null;
+          const id = str(r, "id", "_id");
           if (!id) return null;
           return {
             id,
-            name: typeof rec.name === "string" ? rec.name : id,
-            platform: typeof rec.platform === "string" ? rec.platform : "unknown",
+            name: str(r, "name", "username", "handle") ?? id,
+            platform: str(r, "platform", "provider") ?? "unknown",
           };
         })
         .filter((x): x is AccountSummary => x !== null);
