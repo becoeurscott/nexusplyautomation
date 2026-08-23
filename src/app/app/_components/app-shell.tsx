@@ -80,7 +80,11 @@ export function AppShell({
         {sidebar}
       </aside>
 
-      <div className="relative flex min-h-[calc(100dvh-2rem)] flex-col gap-4">
+      {/* Capped and centred: with the nav now an overlay rather than a column,
+          content otherwise ran the full width of an ultrawide display, giving
+          unreadably long rows. The header shares the wrapper so the two stay
+          aligned. */}
+      <div className="relative mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-[1600px] flex-col gap-4">
         <header className="nx-glass flex items-center justify-between gap-4 rounded-3xl px-4 py-3">
           <button
             type="button"

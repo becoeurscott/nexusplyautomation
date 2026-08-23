@@ -159,12 +159,15 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* Row 1 — greeting, credits dial, setup progress */}
-      <div className="grid gap-4 lg:grid-cols-12">
+      {/* Row 1 — greeting, credits dial, setup progress.
+          Columns start at md: below lg everything used to collapse into a
+          single full-width stack, so every laptop under 1024px got a very
+          long scroll with three-quarters of the width unused. */}
+      <div className="grid gap-4 md:grid-cols-12">
         {/* self-start so the card hugs its content — grid rows stretch every
             item to the tallest panel by default, which left a tall band of
             empty blue under the buttons. */}
-        <div className="relative self-start overflow-hidden rounded-2xl bg-[color:var(--nx-blue)] p-6 text-white lg:col-span-5">
+        <div className="relative self-start overflow-hidden rounded-2xl bg-[color:var(--nx-blue)] p-6 text-white md:col-span-12 lg:col-span-5">
           <div
             className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full bg-white/15 blur-2xl"
             aria-hidden
@@ -201,7 +204,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <Card title="Credits" icon={<Coins className="h-4 w-4" />} className="lg:col-span-3">
+        <Card title="Credits" icon={<Coins className="h-4 w-4" />} className="md:col-span-5 lg:col-span-3">
           <Dial value={balance} max={DIAL_MAX} />
           <p className="mt-3 text-center text-xs text-slate-400">
             Used each time you post or create something with AI.
@@ -229,7 +232,7 @@ export default async function DashboardPage() {
         <Card
           title="Getting started"
           icon={<Sparkles className="h-4 w-4" />}
-          className="lg:col-span-4"
+          className="md:col-span-7 lg:col-span-4"
         >
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span>
@@ -281,13 +284,13 @@ export default async function DashboardPage() {
       )}
 
       {/* Row 2 — schedule + results rail */}
-      <div className="grid gap-4 lg:grid-cols-12">
+      <div className="grid gap-4 md:grid-cols-12">
         <Card
           title="Going out next"
           icon={<CalendarClock className="h-4 w-4" />}
           href="/app/queue"
           linkLabel="Schedule"
-          className="lg:col-span-8"
+          className="md:col-span-7 lg:col-span-8"
         >
           {upcoming.length === 0 ? (
             <EmptyNote>
@@ -307,7 +310,7 @@ export default async function DashboardPage() {
           icon={<BarChart3 className="h-4 w-4" />}
           href="/app/analytics"
           linkLabel="Results"
-          className="lg:col-span-4"
+          className="md:col-span-5 lg:col-span-4"
         >
           {metrics.length === 0 ? (
             <EmptyNote>
@@ -327,7 +330,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Row 3 — recent, messages, accounts */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card
           title="Recently posted"
           icon={<ListChecks className="h-4 w-4" />}
@@ -422,7 +425,7 @@ export default async function DashboardPage() {
 
       {/* Every part of the app stays visible */}
       <Card title="Everything you can do" icon={<Sparkles className="h-4 w-4" />}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           <Action href="/app/compose" title="Create a post" body="Write once, send everywhere." icon={<Send className="h-4 w-4" />} />
           <Action href="/app/posts" title="My posts" body="What went out and what's next." icon={<ListChecks className="h-4 w-4" />} />
           <Action href="/app/queue" title="Schedule" body="Choose when posts go out." icon={<CalendarClock className="h-4 w-4" />} soon />
