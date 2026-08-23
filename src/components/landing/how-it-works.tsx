@@ -1,54 +1,64 @@
+import Link from "next/link";
 import { Reveal } from "./reveal";
+import { Tap } from "@/components/tap";
+import { Section } from "./section";
 
 const STEPS = [
   {
-    n: "01",
-    title: "Connect",
-    body: "Securely link your social accounts in one click. We never see your platform passwords.",
+    title: "Connect your accounts",
+    body: "Connect the social platforms you want to manage.",
   },
   {
-    n: "02",
-    title: "Plan",
-    body: "Set your brand context, then let AI draft a month of posts you can edit into shape.",
+    title: "Tell us about your business",
+    body: "Your industry, audience, offers, tone and goals.",
   },
   {
-    n: "03",
-    title: "Publish",
-    body: "Cross-post now or queue for later. Auto-retries on failure, credits refund if a post never lands.",
+    title: "Build your content system",
+    body: "Create your content direction and publishing calendar.",
   },
   {
-    n: "04",
-    title: "Measure",
-    body: "Real analytics, best time to post, and campaign roll-ups by tracking tag.",
+    title: "Review your content",
+    body: "Make sure everything represents your business.",
+  },
+  {
+    title: "Let NexusPly handle the workflow",
+    body: "Scheduling, publishing, organization and repetitive tasks happen automatically.",
+  },
+  {
+    title: "Watch your results",
+    body: "Use performance data to understand what's getting attention.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="relative py-24">
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            From Zero to Running in an Afternoon
-          </h2>
-        </Reveal>
-
-        <ol className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s, i) => (
-            <Reveal key={s.n} delay={0.2 * i} as="li">
-              <div className="nx-card nx-card--soft h-full p-6">
-                <span className="font-display bg-gradient-to-br from-[#73b4ff] to-[#0a63f4] bg-clip-text text-4xl font-bold text-transparent">
-                  {s.n}
-                </span>
-                <h3 className="font-display mt-4 text-xl font-semibold text-white">
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </ol>
+    <Section id="how-it-works" title="How NexusPly works">
+      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {STEPS.map((s, i) => (
+          <Reveal key={s.title} delay={Math.min(i * 0.05, 0.3)}>
+            <article className="nx-card nx-card--soft h-full p-6">
+              <span className="font-display text-3xl font-bold text-[color:var(--nx-blue)]">
+                {i + 1}
+              </span>
+              <h3 className="font-display mt-3 text-lg font-semibold text-white">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.body}</p>
+            </article>
+          </Reveal>
+        ))}
       </div>
-    </section>
+
+      <Reveal className="mt-12 text-center">
+        <Tap>
+          <Link
+            href="/sign-up"
+            className="inline-block rounded-[10px] bg-[color:var(--nx-blue)] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_-8px_rgba(10,99,244,0.9)] transition hover:bg-[color:var(--nx-blue-hover)]"
+          >
+            Get Started
+          </Link>
+        </Tap>
+      </Reveal>
+    </Section>
   );
 }

@@ -5,28 +5,40 @@ import { ChevronDown } from "lucide-react";
 
 const QS = [
   {
-    q: "Is Starter really free forever?",
-    a: "Yes. 30 credits every month, 3 connected accounts, and every core feature. No credit card, ever. If you outgrow it, upgrade in one click.",
+    q: "Is NexusPly an AI tool?",
+    a: "NexusPly is a social-media management and automation service. The technology behind the platform is there to make the work faster and easier; customers don't need to manage the underlying tools.",
   },
   {
-    q: "How exactly do credits work?",
-    a: "Every action has a small credit cost: 1 credit per scheduled post, 3 for an AI caption, 20 for a generated video. Your plan tops up monthly; top-up packs are always available. Failed posts refund automatically.",
+    q: "Do I have to create my own content?",
+    a: "NexusPly can help with content creation, planning and publishing so you don't have to start from a blank page every day.",
   },
   {
-    q: "How does Nexusply connect to my social accounts?",
-    a: "You link each account once from Settings. Credentials are encrypted at rest — only the last four characters of any key are ever shown back to you, and we never see your platform passwords.",
+    q: "Can I approve posts before they are published?",
+    a: "Yes. Your workflow can include review and approval before publication.",
   },
   {
-    q: "What happens if a post fails to publish?",
-    a: "We retry the publish up to five times with backoff. If it never lands, the credit is automatically refunded to your balance and the failure is logged for support visibility.",
+    q: "Can I manage multiple social networks?",
+    a: "Yes. NexusPly is designed around multi-platform social-media management.",
   },
   {
-    q: "Can I change or cancel my plan at any time?",
-    a: "Any time, directly from your billing page. Your organisation drops to the free tier and keeps its data. Hard-delete on request within 30 days.",
+    q: "Can NexusPly automatically publish content?",
+    a: "Yes. Scheduled and automated publishing is a core part of the service.",
   },
   {
-    q: "Do you support M-Pesa STK Push?",
-    a: "Yes — via IntaSend on the School / Institute / Agency tiers. Cards, MTN MoMo, and Orange Money are also live via Flutterwave and Paystack.",
+    q: "Can it help with comments and messages?",
+    a: "Engagement management can be included depending on the platform and plan.",
+  },
+  {
+    q: "Can I connect my existing social accounts?",
+    a: "Yes. NexusPly is designed to work with your existing business social accounts.",
+  },
+  {
+    q: "Can I cancel?",
+    a: "Yes. Plans can be canceled according to the subscription terms.",
+  },
+  {
+    q: "Do I need marketing experience?",
+    a: "No. NexusPly is designed to simplify social-media management for business owners.",
   },
 ];
 
@@ -37,10 +49,10 @@ export function FAQ() {
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
           <h2 className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Got Questions? We've Got Answers.
+            Frequently Asked Questions
           </h2>
           <p className="mt-4 text-lg text-slate-400">
-            Everything you need to know about credits, security, and payments.
+            Everything you need to know before you start.
           </p>
         </div>
         <ul className="mt-12 space-y-3">

@@ -7,9 +7,9 @@ import { Logo } from "./brand";
 
 const LINKS = [
   { href: "#features", label: "Features" },
+  { href: "#platforms", label: "Platforms" },
   { href: "#how-it-works", label: "How it works" },
   { href: "#pricing", label: "Pricing" },
-  { href: "#testimonials", label: "Testimonials" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -72,7 +72,7 @@ export function Nav() {
               href="/sign-up"
               className="inline-block rounded-[10px] bg-[color:var(--nx-blue)] px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_30px_-8px_rgba(10,99,244,0.8)] transition hover:bg-[color:var(--nx-blue-hover)]"
             >
-              Sign up
+              Start Free Trial
             </Link>
           </motion.div>
         </div>

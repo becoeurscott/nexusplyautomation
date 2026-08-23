@@ -18,7 +18,7 @@ export function Logo({
         height={size}
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
-        aria-label="Nexusply"
+        aria-label="NexusPly"
       >
         <path
           d="M6 24 L6 8 L12 8 L12 18 L20 8 L26 8 L26 24 L20 24 L20 14 L12 24 Z"
@@ -28,7 +28,7 @@ export function Logo({
       </svg>
       {showWordmark && (
         <span className="font-display text-[17px] font-bold tracking-tight text-white">
-          Nexusply
+          NexusPly
         </span>
       )}
     </Link>

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Reveal } from "./reveal";
 import { Tap } from "@/components/tap";
 
-/** Template's closing CTA on the blue-green grain gradient (cta-gradient.png). */
 export function FinalCTA() {
   return (
     <section className="relative px-6 pb-24">
@@ -18,32 +17,54 @@ export function FinalCTA() {
           <div className="absolute inset-0 bg-black/25" aria-hidden />
           <div className="relative">
             <h2 className="font-display mx-auto max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Ready to Put Your Social Presence on Autopilot?
+              You run the business.
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-white/85">
-              Join forward-thinking African teams saving hours today. Start free with 30
-              credits — no credit card required.
+            <p className="font-display mx-auto mt-3 max-w-2xl text-2xl font-semibold text-white/90 sm:text-3xl">
+              We&apos;ll help handle the social media.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+
+            <div className="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
+              <div className="rounded-[14px] border border-white/20 bg-black/20 p-5 text-left">
+                <div className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                  Stop asking
+                </div>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  “What should I post today?”
+                </p>
+              </div>
+              <div className="rounded-[14px] border border-white/20 bg-black/20 p-5 text-left">
+                <div className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                  Start knowing
+                </div>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  “My content is already planned.”
+                </p>
+              </div>
+            </div>
+
+            <p className="mx-auto mt-8 max-w-xl text-white/80">
+              Stop manually posting everywhere. Start managing your social presence from
+              one system. Stop spending hours on repetitive tasks. Start spending that
+              time on your business.
+            </p>
+
+            <p className="font-display mt-10 text-2xl font-bold text-white">
+              Your social media, handled.
+            </p>
+
+            <div className="mt-7">
               <Tap>
                 <Link
                   href="/sign-up"
-                  className="rounded-[10px] bg-white px-7 py-3.5 text-sm font-bold text-[#021d46] transition hover:bg-slate-100"
+                  className="inline-block rounded-[10px] bg-white px-8 py-3.5 text-sm font-bold uppercase tracking-wide text-[#021d46] transition hover:bg-white/90"
                 >
-                  Get Started Free
+                  Start Your Free Trial
                 </Link>
               </Tap>
-              <Tap>
-                <a
-                  href="#pricing"
-                  className="rounded-[10px] border border-white/40 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Compare plans
-                </a>
-              </Tap>
             </div>
-            <p className="mt-6 text-xs font-medium text-white/70">
-              🔥 30 free credits every month — forever. No credit card required.
+
+            <p className="mt-6 text-xs italic text-white/70">
+              Create. Schedule. Publish. Engage. Measure. Automate.
             </p>
           </div>
         </div>

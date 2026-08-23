@@ -38,14 +38,14 @@ function resolveSiteUrl(): URL {
 }
 
 export const metadata: Metadata = {
-  title: "Nexusply AI Automation — One dashboard for every social account",
+  title: "NexusPly — Your social media, handled.",
   description:
-    "Plan, generate, publish, listen, and learn — across every social channel. Priced for African schools, creators, and SMBs. Paid via M-Pesa, MoMo, Orange, and Flutterwave.",
+    "Social media management for businesses that want to stay visible without staying online all day. Content, publishing, engagement and growth from one system.",
   metadataBase: resolveSiteUrl(),
   openGraph: {
-    title: "Nexusply AI Automation",
+    title: "NexusPly — Your social media, handled.",
     description:
-      "One dashboard for every social account. AI-native, credit-metered, priced for Africa.",
+      "You focus on your business. We handle your social media.",
     type: "website",
   },
 };

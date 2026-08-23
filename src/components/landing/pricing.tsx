@@ -2,25 +2,23 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PLANS, formatUsd } from "@/lib/i18n/pricing";
 import { Check } from "lucide-react";
+import { PLANS, formatUsd } from "@/lib/i18n/pricing";
 
-/** Template treatment: dark section, edge-lit cards, featured card in blue. USD only. */
 export function Pricing() {
   return (
     <section id="pricing" className="nx-glow-top relative py-24">
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Transparent Pricing That Pays for Itself
+            Simple pricing. Powerful automation.
           </h2>
           <p className="mt-4 text-lg text-slate-400">
-            Every plan includes monthly credits. Credits pay for posts, AI generations,
-            and videos. Top up any time.
+            Start small and move up when your business needs more.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {PLANS.map((plan) => (
             <article
               key={plan.code}
@@ -33,23 +31,21 @@ export function Pricing() {
             >
               {plan.featured && (
                 <span className="absolute -top-3 right-6 rounded-full bg-[color:var(--nx-blue)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
-                  Popular
+                  Most popular
                 </span>
               )}
-              <h3 className="font-display text-lg font-bold text-white">{plan.name}</h3>
-              <p className="mt-1 text-sm text-slate-400">{plan.tagline}</p>
+              <h3 className="font-display text-sm font-bold uppercase tracking-widest text-[color:var(--nx-blue-soft)]">
+                {plan.name}
+              </h3>
 
-              <div className="mt-6">
-                <div className="font-display text-4xl font-bold text-white">
+              <div className="mt-4">
+                <span className="font-display text-4xl font-bold text-white">
                   {formatUsd(plan.priceUsd)}
-                  {plan.priceUsd > 0 && (
-                    <span className="ml-1 text-base font-medium text-slate-400">/mo</span>
-                  )}
-                </div>
-                <div className="mt-1 text-xs text-slate-500">
-                  {plan.credits.toLocaleString()} credits included
-                </div>
+                </span>
+                <span className="ml-1 text-base font-medium text-slate-400">/month</span>
               </div>
+
+              <p className="mt-3 text-sm text-slate-400">{plan.tagline}</p>
 
               <ul className="mt-6 flex-1 space-y-2.5 text-sm">
                 {plan.highlights.map((h) => (
@@ -78,7 +74,7 @@ export function Pricing() {
         </div>
 
         <p className="mt-8 text-center text-xs text-slate-500">
-          Top-up packs always available · M-Pesa, MTN MoMo, Orange Money, and cards · Cancel any time
+          Pay by card, M-Pesa, MTN MoMo, Orange Money or bank transfer · Cancel any time
         </p>
       </div>
     </section>
