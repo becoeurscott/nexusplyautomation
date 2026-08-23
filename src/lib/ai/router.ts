@@ -1,14 +1,24 @@
 /**
- * Multi-model AI router.
- * - Route hard tasks (calendars, scripts) → Anthropic Claude.
- * - Route cheap tasks (caption polish, translation, summarization) → Gemini Flash.
- * - Every call is task-typed so we can swap providers per task without touching callers.
+ * Every LLM call in the product goes through OpenRouter — one key, one
+ * account, one invoice. No provider SDKs are used directly.
+ *
+ * Tasks stay typed and are mapped to a model tier rather than to a vendor, so
+ * changing which model serves a task is an env change and callers never learn
+ * who answered. Slugs are verified against OpenRouter's model list; pick any
+ * other from https://openrouter.ai/models and set the env var.
+ *
+ * OpenRouter is OpenAI-compatible, so this is a plain fetch — it deliberately
+ * avoids adding an SDK dependency for what is one POST.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenAI } from "@google/genai";
+const BASE = process.env.OPENROUTER_API_BASE ?? "https://openrouter.ai/api/v1";
 
-type Provider = "claude" | "gemini";
+/** Reasoning-heavy work: calendars, scripts, anything customer-facing and long. */
+const MODEL_SMART = process.env.OPENROUTER_MODEL_SMART ?? "anthropic/claude-sonnet-5";
+/** High-volume, low-difficulty work: polish, translation, summarising. */
+const MODEL_FAST = process.env.OPENROUTER_MODEL_FAST ?? "google/gemini-2.5-flash";
+
+type Tier = "smart" | "fast";
 
 export type AiTask =
   | "script.generate"
@@ -19,38 +29,24 @@ export type AiTask =
   | "translate"
   | "summarize";
 
-const TASK_PROVIDER: Record<AiTask, Provider> = {
-  "script.generate": "claude",
-  "calendar.month.generate": "claude",
-  "reply.draft": "claude",
-  "caption.generate": "claude",
-  "caption.polish": "gemini",
-  translate: "gemini",
-  summarize: "gemini",
+const TASK_TIER: Record<AiTask, Tier> = {
+  "script.generate": "smart",
+  "calendar.month.generate": "smart",
+  "reply.draft": "smart",
+  "caption.generate": "smart",
+  "caption.polish": "fast",
+  translate: "fast",
+  summarize: "fast",
 };
 
-const CLAUDE_MODEL = process.env.CLAUDE_MODEL ?? "claude-sonnet-5";
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-
-let claude: Anthropic | null = null;
-let gemini: GoogleGenAI | null = null;
-
-function getClaude(): Anthropic {
-  if (!claude) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
-    claude = new Anthropic({ apiKey });
+export class AiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly body: unknown,
+  ) {
+    super(`OpenRouter ${status}`);
+    this.name = "AiError";
   }
-  return claude;
-}
-
-function getGemini(): GoogleGenAI {
-  if (!gemini) {
-    const apiKey = process.env.GOOGLE_API_KEY;
-    if (!apiKey) throw new Error("GOOGLE_API_KEY is not set");
-    gemini = new GoogleGenAI({ apiKey });
-  }
-  return gemini;
 }
 
 export type ChatInput = {
@@ -59,34 +55,54 @@ export type ChatInput = {
   user: string;
   temperature?: number;
   maxTokens?: number;
+  /** Overrides the tier's model for this call only. */
+  model?: string;
 };
 
+export function aiConfigured(): boolean {
+  return Boolean(process.env.OPENROUTER_API_KEY);
+}
+
+/**
+ * Attribution headers OpenRouter uses to identify the calling app. Harmless
+ * if the site URL isn't set, so they're built defensively.
+ */
+export function openRouterHeaders(): Record<string, string> {
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new Error("OPENROUTER_API_KEY is not set");
+  const site = process.env.NEXT_PUBLIC_APP_URL;
+  return {
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/json",
+    ...(site ? { "HTTP-Referer": site } : {}),
+    "X-Title": "NexusPly",
+  };
+}
+
 export async function chat(input: ChatInput): Promise<string> {
-  const provider = TASK_PROVIDER[input.task];
-  if (provider === "claude") {
-    const c = getClaude();
-    const res = await c.messages.create({
-      model: CLAUDE_MODEL,
+  const model =
+    input.model ?? (TASK_TIER[input.task] === "smart" ? MODEL_SMART : MODEL_FAST);
+
+  const res = await fetch(`${BASE}/chat/completions`, {
+    method: "POST",
+    headers: openRouterHeaders(),
+    body: JSON.stringify({
+      model,
+      temperature: input.temperature ?? 0.7,
       max_tokens: input.maxTokens ?? 2_000,
-      temperature: input.temperature ?? 0.7,
-      system: input.system,
-      messages: [{ role: "user", content: input.user }],
-    });
-    return res.content
-      .map((c) => (c.type === "text" ? c.text : ""))
-      .filter(Boolean)
-      .join("\n");
-  }
-  const g = getGemini();
-  const res = await g.models.generateContent({
-    model: GEMINI_MODEL,
-    contents: [
-      { role: "user", parts: [{ text: `${input.system}\n\n${input.user}` }] },
-    ],
-    config: {
-      temperature: input.temperature ?? 0.7,
-      maxOutputTokens: input.maxTokens ?? 2_000,
-    },
+      messages: [
+        { role: "system", content: input.system },
+        { role: "user", content: input.user },
+      ],
+    }),
   });
-  return res.text ?? "";
+
+  if (!res.ok) {
+    throw new AiError(res.status, await res.text().catch(() => ""));
+  }
+
+  const data = (await res.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
+  return data.choices?.[0]?.message?.content ?? "";
 }

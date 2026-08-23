@@ -59,7 +59,7 @@ export const CREDIT_PRICE_SEED: CreditPriceSeed[] = [
   // who currently serves each one. Costs below are the current provider's
   // published rates, kept deliberately conservative so a provider swap does
   // not silently erode margin.
-  { actionKey: "media.image.generate", credits: 5, estCostUsd: 0.02, description: "Generate one image" },
+  { actionKey: "media.image.generate", credits: 5, estCostUsd: 0.004, description: "Generate one image" },
   { actionKey: "media.image.upscale", credits: 3, estCostUsd: 0.01, description: "Upscale an image" },
   { actionKey: "media.image.remove_bg", credits: 2, estCostUsd: 0.008, description: "Remove background" },
   { actionKey: "media.video.generate", credits: 55, estCostUsd: 0.35, description: "Generate a short video clip" },
