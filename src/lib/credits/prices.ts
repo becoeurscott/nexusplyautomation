@@ -2,8 +2,13 @@
  * Seed table for `credit_prices`. Hot-editable in admin; this file is
  * the initial-load source that runs on `pnpm db:push` or a first-boot script.
  *
- * Actions are namespaced by producer: `zernio.*`, `higgsfield.*`, `cloneviral.*`,
- * `ai.*`, `automation.*`, `trend.*`.
+ * Action keys are namespaced by CAPABILITY, not by vendor — `media.*`, not
+ * the name of whoever generates the media this month. These keys are stored
+ * in `credit_prices` and referenced from `credit_ledger`, so a vendor name
+ * baked into a key turns every supplier change into a data migration. That
+ * already happened once. `zernio.*` and `cloneviral.*` remain only because
+ * they map to a specific integrated product surface rather than a
+ * substitutable capability.
  *
  * PRICING MODEL — cost-plus, USD only.
  * Retail credit rate: 1 credit = $0.02 (matches `TOP_UP_PACKS` and the
@@ -50,18 +55,17 @@ export const CREDIT_PRICE_SEED: CreditPriceSeed[] = [
   { actionKey: "ai.reply.draft", credits: 1, estCostUsd: 0.003, description: "Draft an inbox reply using brand voice" },
   { actionKey: "ai.translate", credits: 1, estCostUsd: 0.002, description: "Translate a caption or script (cheap model)" },
 
-  // Media generation — image (cheap), video/voice (expensive: hold to 3x floor)
-  { actionKey: "higgsfield.image.generate", credits: 5, estCostUsd: 0.03, description: "Generate one image" },
-  { actionKey: "higgsfield.image.upscale", credits: 3, estCostUsd: 0.02, description: "Upscale an image to 2K/4K" },
-  { actionKey: "higgsfield.image.outpaint", credits: 5, estCostUsd: 0.03, description: "Uncrop / expand an image" },
-  { actionKey: "higgsfield.image.remove_bg", credits: 2, estCostUsd: 0.01, description: "Remove background" },
-  { actionKey: "higgsfield.video.generate", credits: 55, estCostUsd: 0.35, description: "Generate a short video clip" },
-  { actionKey: "higgsfield.video.upscale", credits: 40, estCostUsd: 0.25, description: "Upscale a video" },
-  { actionKey: "higgsfield.video.reframe", credits: 15, estCostUsd: 0.10, description: "Reframe a video's aspect ratio" },
-  { actionKey: "higgsfield.voice.generate", credits: 12, estCostUsd: 0.08, description: "Generate a voiceover" },
-  { actionKey: "higgsfield.voice.clone", credits: 75, estCostUsd: 0.50, description: "Create a cloned voice (one-time)" },
-  { actionKey: "higgsfield.dub", credits: 30, estCostUsd: 0.20, description: "Dub a video into another language" },
-  { actionKey: "higgsfield.3d.generate", credits: 45, estCostUsd: 0.30, description: "Generate a 3D asset from an image" },
+  // Media generation. Provider-agnostic keys; see src/lib/media/README for
+  // who currently serves each one. Costs below are the current provider's
+  // published rates, kept deliberately conservative so a provider swap does
+  // not silently erode margin.
+  { actionKey: "media.image.generate", credits: 5, estCostUsd: 0.02, description: "Generate one image" },
+  { actionKey: "media.image.upscale", credits: 3, estCostUsd: 0.01, description: "Upscale an image" },
+  { actionKey: "media.image.remove_bg", credits: 2, estCostUsd: 0.008, description: "Remove background" },
+  { actionKey: "media.video.generate", credits: 55, estCostUsd: 0.35, description: "Generate a short video clip" },
+  { actionKey: "media.video.reframe", credits: 15, estCostUsd: 0.10, description: "Reframe a video's aspect ratio" },
+  { actionKey: "media.voice.generate", credits: 6, estCostUsd: 0.02, description: "Generate a voiceover" },
+  { actionKey: "media.dub", credits: 30, estCostUsd: 0.20, description: "Dub a video into another language" },
 
   // Long-form repurposing — heaviest compute in the product; strict 3x floor
   { actionKey: "cloneviral.long_to_shorts.render", credits: 110, estCostUsd: 0.70, description: "Turn a long video into vertical shorts" },

@@ -127,19 +127,6 @@ export const zernioCredentials = pgTable("zernio_credentials", {
   addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const higgsfieldCredentials = pgTable("higgsfield_credentials", {
-  orgId: uuid("org_id")
-    .primaryKey()
-    .references(() => organizations.id, { onDelete: "cascade" }),
-  ciphertext: text("ciphertext").notNull(),
-  iv: text("iv").notNull(),
-  tag: text("tag").notNull(),
-  keyPreview: text("key_preview").notNull(),
-  addedById: text("added_by_id")
-    .notNull()
-    .references(() => users.id),
-  addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
-});
 
 export const cloneviralCredentials = pgTable("cloneviral_credentials", {
   orgId: uuid("org_id")
@@ -242,7 +229,9 @@ export const mediaAssets = pgTable(
     kind: text("kind", { enum: ["image", "video", "audio"] }).notNull(),
     url: text("url").notNull(),
     source: text("source", {
-      enum: ["upload", "higgsfield", "cloneviral", "external"],
+      // Vendor-neutral: "generated" covers whichever media provider
+      // produced it, so swapping providers is not a data migration.
+      enum: ["upload", "generated", "cloneviral", "external"],
     }).notNull(),
     sourceRef: text("source_ref"),
     meta: jsonb("meta").notNull().default({}),

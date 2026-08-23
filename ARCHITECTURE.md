@@ -14,7 +14,7 @@ nexusply/
 │  ├─ db/         # Drizzle schema + client
 │  ├─ auth/       # Better-Auth (email/password + Google + mobile bearer)
 │  ├─ zernio/     # Typed Zernio REST wrapper (already built in Phase 1)
-│  ├─ higgsfield/ # Typed Higgsfield MCP-adjacent wrapper (media generation)
+│  ├─ media/ # Typed the media provider-adjacent wrapper (media generation)
 │  ├─ cloneviral/ # Typed CloneViral wrapper (long-form → shorts)
 │  ├─ credits/    # Credit ledger + `withCredits(cost, fn)` helper + prices
 │  ├─ payments/   # Flutterwave / Paystack / IntaSend / MTN MoMo / Orange adapters
@@ -54,7 +54,6 @@ Below is the full schema. Tables from Phase 1 that stay unchanged are marked *(e
 
 ### Credentials (per-org, encrypted)
 - `zernio_credentials(org_id, ciphertext, iv, tag, key_preview, added_by_id, added_at)` *(existing shape)*
-- `higgsfield_credentials(...)` — same shape.
 - `cloneviral_credentials(...)` — same shape.
 
 ### Brand context (the moat)
@@ -63,13 +62,13 @@ Below is the full schema. Tables from Phase 1 that stay unchanged are marked *(e
 
 ### Publishing / content
 - `posts_cache(id, org_id, zernio_post_id, status, platform, scheduled_at, published_at, content, media_urls jsonb, updated_at)` — local mirror of Zernio's post rows so pages render without a round-trip. Refreshed by `analytics.poll` and webhook.
-- `media_assets(id, org_id, kind in {image,video,audio}, url, source in {upload,higgsfield,cloneviral}, source_ref, meta jsonb, created_at)` — everything the user has generated or uploaded, browsable in a picker.
+- `media_assets(id, org_id, kind in {image,video,audio}, url, source in {upload,media,cloneviral}, source_ref, meta jsonb, created_at)` — everything the user has generated or uploaded, browsable in a picker.
 - `drafts(id, org_id, author_id, title, payload jsonb, created_at, updated_at)` *(existing)*.
 
 ### Credit system
 - `plans(id, code, name, monthly_price_local numeric, currency, included_credits int, per_channel_cap int, features jsonb, sort_order, active)` — hot-editable in admin.
 - `subscriptions(id, org_id, plan_id, provider, provider_sub_ref, status in {trialing,active,past_due,canceled}, current_period_end, cancel_at, created_at)`.
-- `credit_prices(action_key, credits, description, updated_at)` — e.g. `post.create=1, ai.caption.generate=3, ai.calendar.month.generate=15, video.render=25, higgsfield.image.generate=2`.
+- `credit_prices(action_key, credits, description, updated_at)` — e.g. `post.create=1, ai.caption.generate=3, ai.calendar.month.generate=15, video.render=25, media.image.generate=2`.
 - `credit_ledger(id, org_id, delta int, reason in {plan_refill,top_up,action_debit,admin_adjust,refund,promo}, ref_type, ref_id, balance_after int, actor_user_id, created_at)` — append-only; `balance_after` is the invariant we lean on for audits.
 - `top_up_products(id, credits, price_local numeric, currency, active)`.
 

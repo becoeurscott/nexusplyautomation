@@ -80,7 +80,18 @@ async function main() {
         set: { credits: p.credits, description: p.description, updatedAt: sql`now()` },
       });
   }
-  console.log(`credit_prices: ${CREDIT_PRICE_SEED.length}`);
+  // Remove action keys no longer offered. Unlike plans these are safe to
+  // delete: credit_ledger records the key it charged as text, so history is
+  // unaffected by pruning the price table.
+  const liveKeys = CREDIT_PRICE_SEED.map((p) => p.actionKey);
+  const dropped = await db
+    .delete(creditPrices)
+    .where(notInArray(creditPrices.actionKey, liveKeys))
+    .returning({ key: creditPrices.actionKey });
+  console.log(
+    `credit_prices: ${CREDIT_PRICE_SEED.length} active` +
+      (dropped.length ? `, ${dropped.length} removed (${dropped.map((d) => d.key).join(", ")})` : ""),
+  );
 }
 
 main()

@@ -16,7 +16,7 @@ Monorepo (pnpm workspaces + Turborepo). Apps under `apps/`, shared code under `p
 ## Package rules
 - **`packages/db`** — Drizzle schema is the source of truth. Never write raw SQL migrations by hand; use `drizzle-kit generate`.
 - **`packages/auth`** — Better-Auth config. Don't add a second auth library.
-- **`packages/zernio`, `packages/higgsfield`, `packages/cloneviral`** — thin typed adapters. One method per upstream endpoint. Never inline business logic here.
+- **`packages/zernio`, `packages/media`, `packages/cloneviral`** — thin typed adapters. One method per upstream endpoint. Never inline business logic here.
 - **`packages/credits`** — `withCredits(cost, fn)` is the only way to spend credits. Never insert into `credit_ledger` from outside this package.
 - **`packages/jobs`** — BullMQ workers. Each worker file is one queue.
 - **`packages/ai`** — always call `withBrandContext(orgId, ...)` before hitting Claude; never bypass to keep outputs generic.
@@ -40,7 +40,7 @@ Monorepo (pnpm workspaces + Turborepo). Apps under `apps/`, shared code under `p
 Any behavior that changes user-facing outputs ships behind a `feature_flags` row so it can be toggled per-org without redeploy. Default to `off` in production until sign-off.
 
 ## Testing bar
-- Every mutation procedure has at least one integration test that hits a real local Postgres (via `docker compose up postgres`) and a mocked Zernio/Higgsfield/CloneViral server.
+- Every mutation procedure has at least one integration test that hits a real local Postgres (via `docker compose up postgres`) and a mocked Zernio/the media provider/CloneViral server.
 - Credit debit + refund path must be tested end-to-end. This is the invariant we're most likely to break.
 - Snapshot tests for AI prompts (input → assembled prompt) so we notice accidental drift.
 

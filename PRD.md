@@ -4,7 +4,7 @@
 An AI-native, credit-metered social-media command center for African creators, schools, and SMBs — one place to plan, generate, publish, listen, and learn, priced in local currency and paid via mobile money.
 
 ## Why this exists
-The African creator and SMB market is served today by tools built for US pricing (Buffer, Hootsuite, Publer) and paid in dollars via credit cards. Meanwhile, the workflow those tools address is fragmenting: creators paste between ChatGPT for scripts, Canva for visuals, CapCut for edits, Later for scheduling, and native inboxes for replies. Nexusply consolidates that stack around three third-party engines we already have MCP access to (Zernio for social ops, Higgsfield for media generation, CloneViral for long-form-to-clip), adds the pieces those engines don't cover (brand memory, AI calendar, script generation in the user's voice, trend + competitor research), and prices the whole thing in KES / NGN / XOF / USD with M-Pesa, MTN MoMo, Orange, and Flutterwave rails.
+The African creator and SMB market is served today by tools built for US pricing (Buffer, Hootsuite, Publer) and paid in dollars via credit cards. Meanwhile, the workflow those tools address is fragmenting: creators paste between ChatGPT for scripts, Canva for visuals, CapCut for edits, Later for scheduling, and native inboxes for replies. Nexusply consolidates that stack around three third-party engines we already have MCP access to (Zernio for social ops, the media provider for media generation, CloneViral for long-form-to-clip), adds the pieces those engines don't cover (brand memory, AI calendar, script generation in the user's voice, trend + competitor research), and prices the whole thing in KES / NGN / XOF / USD with M-Pesa, MTN MoMo, Orange, and Flutterwave rails.
 
 ## Target users
 1. **Independent African creators** growing on TikTok / IG / YouTube. Solo, price-sensitive, phone-first.
@@ -14,7 +14,7 @@ The African creator and SMB market is served today by tools built for US pricing
 
 ## Non-goals for v1
 - Enterprise plans, SOC 2, SAML SSO.
-- Full-blown video editor. (CloneViral does the cutting, Higgsfield does the generation — we orchestrate.)
+- Full-blown video editor. (CloneViral does the cutting, the media provider does the generation — we orchestrate.)
 - Owning the OAuth connections to social platforms. (Zernio owns that. We wrap.)
 - Global tax handling. (v1 = African corridors + a global USD fallback.)
 
@@ -23,7 +23,7 @@ The African creator and SMB market is served today by tools built for US pricing
 ### Publishing (Zernio wraps)
 - Connect accounts, create/edit/delete/schedule posts, cross-post, bulk-upload, retry, publish-now, unpublish.
 - Recurring queue slots per account, weekly calendar, drag-to-reschedule.
-- Media upload flow: pick from Higgsfield-generated library or upload direct.
+- Media upload flow: pick from the media provider-generated library or upload direct.
 
 ### Listen & respond (Zernio wraps)
 - Unified inbox of comments and mentions.
@@ -36,7 +36,7 @@ The African creator and SMB market is served today by tools built for US pricing
 - Follower growth.
 - Tracking-tag campaign roll-ups.
 
-### Generate media (Higgsfield wraps)
+### Generate media (the media provider wraps)
 - Image generation, batch generation, upscaling, background removal, reframing, outpainting.
 - Video generation, motion control, reframing.
 - Voiceover generation, voice cloning (opt-in), dubbing.
@@ -74,14 +74,14 @@ Postana is a small AI-native all-in-one that we compete with directly.
 
 **Threats** — crowded market vs. Hootsuite/Buffer/Later + Jasper/Blaze; platform API changes break scraping; AI content commoditizes; content-tool retention is fragile once novelty wears.
 
-**How Nexusply beats them** — same feature surface plus (a) **credit metering**, (b) **local African currency + mobile-money billing**, (c) **three real production engines (Zernio + Higgsfield + CloneViral)** doing the heavy lifting instead of thin API wrappers, (d) **UI polish matching Nexus/Framer template quality** rather than a founder-built look.
+**How Nexusply beats them** — same feature surface plus (a) **credit metering**, (b) **local African currency + mobile-money billing**, (c) **three real production engines (Zernio + the media provider + CloneViral)** doing the heavy lifting instead of thin API wrappers, (d) **UI polish matching Nexus/Framer template quality** rather than a founder-built look.
 
 ## Capability matrix (who does what)
 | Function | Owner |
 |---|---|
 | Connect accounts, schedule, cross-post, queue | **Zernio MCP** (integrated) |
 | Analytics, best time to post, inbox comments/mentions | **Zernio MCP** (integrated) |
-| Images, videos, voiceover, dubbing | **Higgsfield MCP** (integrated) |
+| Images, videos, voiceover, dubbing | **the media provider** (integrated) |
 | Video clips from long-form | **CloneViral MCP** (integrated) |
 | Brand context store | **Nexusply** (build) |
 | AI calendar generator | **Nexusply** (build — Claude API) |

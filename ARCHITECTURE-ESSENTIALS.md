@@ -3,7 +3,7 @@
 These are the ten choices that would be expensive to reverse later. Every other decision is downstream of these. Read this file first, whether you are a human contributor or a coding agent, before you propose anything structural.
 
 ## 1. Monorepo (pnpm workspaces + Turborepo)
-The web app, the admin app, the mobile app (later), and the shared packages (db, auth, zernio, higgsfield, cloneviral, credits, payments, jobs, automations, ai, trends, shared) all live in one repo. This means one source of truth for the schema, one type surface for the API, one place to bump a Zernio endpoint. The cost is initial setup complexity — worth it because we ship three surfaces at once (web app, admin dashboard, mobile app).
+The web app, the admin app, the mobile app (later), and the shared packages (db, auth, zernio, media, cloneviral, credits, payments, jobs, automations, ai, trends, shared) all live in one repo. This means one source of truth for the schema, one type surface for the API, one place to bump a Zernio endpoint. The cost is initial setup complexity — worth it because we ship three surfaces at once (web app, admin dashboard, mobile app).
 
 **If you disagree**: don't split into separate repos to "keep things simple". Adding a package to the monorepo is cheaper than syncing types across three repos.
 
@@ -13,16 +13,16 @@ The web app talks to itself via tRPC procedures. The mobile app talks to the sam
 **If you disagree**: don't build a parallel REST controller. Wrap the existing procedure.
 
 ## 3. Credits debit in the same DB transaction as the enqueue
-Every Zernio (or Higgsfield, or CloneViral) call is preceded by a `credit_ledger` insert *in the same transaction* as the queue enqueue. The user's balance and the queued job cannot go out of sync — either both happen or neither does. If the downstream call permanently fails after all retries, a matching `credit_ledger` credit row is written (`reason='refund'`) so the balance is auto-restored.
+Every Zernio (or the media provider, or CloneViral) call is preceded by a `credit_ledger` insert *in the same transaction* as the queue enqueue. The user's balance and the queued job cannot go out of sync — either both happen or neither does. If the downstream call permanently fails after all retries, a matching `credit_ledger` credit row is written (`reason='refund'`) so the balance is auto-restored.
 
 **If you disagree**: don't cache balances as the source of truth. `sum(delta)` for the org is the invariant. The cached column on `organizations` exists for display only.
 
-## 4. Zernio / Higgsfield / CloneViral are adapters, not core
-These are third-party engines we wrap. Their capabilities are exposed 1-to-1 in `packages/zernio`, `packages/higgsfield`, `packages/cloneviral`. Our value is in what sits above: brand context, credit metering, automations, AI calendar, trends, UI. If Zernio adds a new endpoint, we add it to the adapter. We never fork their behavior — if they're wrong, we file a bug.
+## 4. Zernio / the media provider / CloneViral are adapters, not core
+These are third-party engines we wrap. Their capabilities are exposed 1-to-1 in `packages/zernio`, `packages/media`, `packages/cloneviral`. Our value is in what sits above: brand context, credit metering, automations, AI calendar, trends, UI. If Zernio adds a new endpoint, we add it to the adapter. We never fork their behavior — if they're wrong, we file a bug.
 
 **If you disagree**: don't reimplement their logic locally. If we ever need to swap one out, the adapter boundary is where the seam lives.
 
-## 5. Users bring their own Zernio / Higgsfield / CloneViral API key (BYOK)
+## 5. Users bring their own Zernio / the media provider / CloneViral API key (BYOK)
 The key is encrypted at rest with AES-256-GCM using a server-side `ENCRYPTION_KEY` (32 bytes base64). Only the last 4 characters ever appear back in any UI. This keeps us out of the position of holding one central master key for every user's social accounts, and makes deletion straightforward.
 
 **If you disagree**: don't add a "we hold the key for you" path in v1. Revisit only if a specific enterprise deal demands it.

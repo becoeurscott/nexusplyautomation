@@ -2,7 +2,7 @@ import { router, orgProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { withCredits } from "@/lib/credits";
-import { higgsfieldForOrg } from "@/lib/higgsfield/for-org";
+import { mediaProvider } from "@/lib/media";
 import { db } from "@/db";
 import { auditEvents, mediaAssets } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
@@ -39,24 +39,23 @@ export const mediaRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const client = await higgsfieldForOrg(ctx.orgId);
-      if (!client) {
+      const provider = mediaProvider();
+      if (!provider.isConfigured()) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: "Connect a Higgsfield key or set HIGGSFIELD_API_KEY.",
+          message: "Image generation isn't available yet.",
         });
       }
       const { result, balanceAfter } = await withCredits(
         {
           orgId: ctx.orgId,
-          action: "higgsfield.image.generate",
+          action: "media.image.generate",
           actorUserId: ctx.session.user.id,
         },
-        async () => client.image.generate(input),
+        async () => provider.generateImage(input),
       );
 
-      const parsed = result as { url?: string; jobId?: string; id?: string };
-      const url = parsed?.url;
+      const url = result.url;
       let insertedId: string | null = null;
       if (url) {
         const [row] = await db
@@ -65,8 +64,8 @@ export const mediaRouter = router({
             orgId: ctx.orgId,
             kind: "image",
             url,
-            source: "higgsfield",
-            sourceRef: parsed?.jobId ?? parsed?.id ?? null,
+            source: "generated",
+            sourceRef: result.ref,
             meta: { prompt: input.prompt, aspectRatio: input.aspectRatio },
           })
           .returning({ id: mediaAssets.id });
@@ -96,18 +95,22 @@ export const mediaRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const client = await higgsfieldForOrg(ctx.orgId);
-      if (!client) throw new TRPCError({ code: "PRECONDITION_FAILED" });
+      const provider = mediaProvider();
+      if (!provider.isConfigured()) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Video generation isn't available yet.",
+        });
+      }
       const { result, balanceAfter } = await withCredits(
         {
           orgId: ctx.orgId,
-          action: "higgsfield.video.generate",
+          action: "media.video.generate",
           actorUserId: ctx.session.user.id,
         },
-        async () => client.video.generate(input),
+        async () => provider.generateVideo(input),
       );
-      const parsed = result as { url?: string; jobId?: string; id?: string };
-      const url = parsed?.url;
+      const url = result.url;
       let insertedId: string | null = null;
       if (url) {
         const [row] = await db
@@ -116,8 +119,8 @@ export const mediaRouter = router({
             orgId: ctx.orgId,
             kind: "video",
             url,
-            source: "higgsfield",
-            sourceRef: parsed?.jobId ?? parsed?.id ?? null,
+            source: "generated",
+            sourceRef: result.ref,
             meta: input as unknown as Record<string, unknown>,
           })
           .returning({ id: mediaAssets.id });
