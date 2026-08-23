@@ -40,7 +40,7 @@ export default async function SettingsPage() {
             <dd className="font-medium text-white">{workspace.name}</dd>
           </div>
           <div className="flex items-center justify-between">
-            <dt className="text-slate-400">Credits left</dt>
+            <dt className="text-slate-400">Creation credits left</dt>
             <dd className="font-medium text-white">{balance}</dd>
           </div>
           {trial && (
@@ -49,9 +49,9 @@ export default async function SettingsPage() {
               <dd className="font-medium text-white">
                 {trial.status === "trialing"
                   ? trial.expired
-                    ? "Free trial (ended)"
-                    : `Free trial · ${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left`
-                  : "Active"}
+                    ? `${trial.planName} trial (ended)`
+                    : `${trial.planName} trial · ${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left`
+                  : trial.planName}
               </dd>
             </div>
           )}

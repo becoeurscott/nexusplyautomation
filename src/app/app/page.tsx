@@ -47,8 +47,8 @@ const METRICS: { keys: string[]; label: string }[] = [
   { keys: ["engagementRate", "engagement"], label: "Engagement" },
 ];
 
-/** Reference point for the credit dial — the smallest plan's monthly grant. */
-const DIAL_MAX = 500;
+/** Fallback only — the dial normally scales to the org's own plan allowance. */
+const DIAL_FALLBACK = 500;
 
 export default async function DashboardPage() {
   const { session, workspace } = await requireWorkspace();
@@ -206,9 +206,11 @@ export default async function DashboardPage() {
         </div>
 
         <Card title="Credits" icon={<Coins className="h-4 w-4" />} className="md:col-span-5 lg:col-span-3">
-          <Dial value={balance} max={DIAL_MAX} />
+          <Dial value={balance} max={trial?.monthlyCredits || DIAL_FALLBACK} />
           <p className="mt-3 text-center text-xs text-slate-400">
-            Used each time you post or create something with AI.
+            {trial?.monthlyCredits
+              ? `${trial.monthlyCredits.toLocaleString()} creation credits a month on ${trial.planName}. Resets each cycle.`
+              : "Creation credits are used each time you post or make something."}
           </p>
           {recentCredits.length > 0 && (
             <ul className="mt-4 space-y-1.5 border-t border-white/10 pt-3">

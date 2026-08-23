@@ -12,7 +12,7 @@ import { writeLedger } from "@/lib/credits/ledger";
  * landed on a dashboard that couldn't actually do anything.
  */
 export const TRIAL_DAYS = 14;
-export const TRIAL_PLAN_CODE = "start";
+export const TRIAL_PLAN_CODE = "starter";
 
 /**
  * Put a freshly-created org on a trial of the entry plan.
@@ -63,6 +63,9 @@ export async function startTrial(orgId: string): Promise<void> {
 }
 
 export type TrialState = {
+  /** The plan's monthly creation-credit allowance, for progress display. */
+  monthlyCredits: number;
+  planName: string;
   status: "trialing" | "active" | "past_due" | "canceled";
   /** Whole days left; 0 on the last day, never negative. */
   daysLeft: number;
@@ -73,8 +76,14 @@ export type TrialState = {
 /** Current subscription state for an org, or null if it has none. */
 export async function getTrialState(orgId: string): Promise<TrialState | null> {
   const [row] = await db
-    .select({ status: subscriptions.status, endsAt: subscriptions.currentPeriodEnd })
+    .select({
+      status: subscriptions.status,
+      endsAt: subscriptions.currentPeriodEnd,
+      monthlyCredits: plans.includedCredits,
+      planName: plans.name,
+    })
     .from(subscriptions)
+    .innerJoin(plans, eq(plans.id, subscriptions.planId))
     .where(eq(subscriptions.orgId, orgId))
     .orderBy(desc(subscriptions.createdAt))
     .limit(1);
@@ -85,6 +94,8 @@ export async function getTrialState(orgId: string): Promise<TrialState | null> {
   const msLeft = endsAt ? endsAt.getTime() - Date.now() : 0;
   return {
     status: row.status,
+    monthlyCredits: row.monthlyCredits,
+    planName: row.planName,
     endsAt,
     daysLeft: endsAt ? Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))) : 0,
     expired: row.status === "trialing" && endsAt !== null && msLeft <= 0,

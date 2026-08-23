@@ -265,11 +265,14 @@ export const drafts = pgTable(
 
 export const plans = pgTable("plans", {
   id: uuid("id").defaultRandom().primaryKey(),
-  code: text("code").notNull().unique(), // starter | school | institute | agency
+  code: text("code").notNull().unique(), // starter | growth | pro | agency
   name: text("name").notNull(),
   monthlyPriceLocal: numeric("monthly_price_local", { precision: 12, scale: 2 })
     .notNull()
     .default("0"),
+  // Annual is billed as ten months — two free. Nullable so a plan can be
+  // monthly-only without pretending an annual price exists.
+  annualPriceLocal: numeric("annual_price_local", { precision: 12, scale: 2 }),
   currency: text("currency").notNull().default("USD"),
   includedCredits: integer("included_credits").notNull().default(0),
   perChannelCap: integer("per_channel_cap"), // null = unlimited
@@ -297,6 +300,11 @@ export const subscriptions = pgTable("subscriptions", {
   })
     .notNull()
     .default("active"),
+  // Drives how far the refill job rolls the period forward, so an annual
+  // subscriber isn't asked to renew monthly.
+  billingInterval: text("billing_interval", { enum: ["monthly", "annual"] })
+    .notNull()
+    .default("monthly"),
   currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
   cancelAt: timestamp("cancel_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -24,6 +24,7 @@ async function main() {
         code: p.code,
         name: p.name,
         monthlyPriceLocal: String(p.priceUsd),
+        annualPriceLocal: String(p.priceUsdAnnual),
         currency: "USD",
         includedCredits: p.credits,
         perChannelCap: p.accounts,
@@ -37,6 +38,7 @@ async function main() {
         set: {
           name: p.name,
           monthlyPriceLocal: String(p.priceUsd),
+          annualPriceLocal: String(p.priceUsdAnnual),
           includedCredits: p.credits,
           perChannelCap: p.accounts,
           seatCap: p.seats,
@@ -64,7 +66,7 @@ async function main() {
       credits: pack.credits,
       priceLocal: String(pack.priceUsd),
       currency: "USD",
-      active: true,
+      active: pack.active,
       sortOrder: i,
     });
   }
