@@ -25,6 +25,7 @@ import { StatusPill } from "./_components/status-pill";
 import { PlatformBadge, platformLabel } from "./_components/platform-badge";
 import { RetryFailedButton } from "./_components/retry-failed-button";
 import { Card, EmptyNote, Dial, Avatar, Bar } from "./_components/dashboard-ui";
+import { StaggerGroup } from "@/components/motion-stagger";
 import {
   bySoonest,
   compact,
@@ -163,7 +164,7 @@ export default async function DashboardPage() {
           Columns start at md: below lg everything used to collapse into a
           single full-width stack, so every laptop under 1024px got a very
           long scroll with three-quarters of the width unused. */}
-      <div className="grid gap-4 md:grid-cols-12">
+      <StaggerGroup className="grid gap-4 md:grid-cols-12">
         {/* self-start so the card hugs its content — grid rows stretch every
             item to the tallest panel by default, which left a tall band of
             empty blue under the buttons. */}
@@ -270,7 +271,7 @@ export default async function DashboardPage() {
             ))}
           </ul>
         </Card>
-      </div>
+      </StaggerGroup>
 
       {!client && (
         <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-5 py-4">
@@ -284,7 +285,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Row 2 — schedule + results rail */}
-      <div className="grid gap-4 md:grid-cols-12">
+      <StaggerGroup className="grid gap-4 md:grid-cols-12" delay={0.12}>
         <Card
           title="Going out next"
           icon={<CalendarClock className="h-4 w-4" />}
@@ -327,10 +328,10 @@ export default async function DashboardPage() {
             </div>
           )}
         </Card>
-      </div>
+      </StaggerGroup>
 
       {/* Row 3 — recent, messages, accounts */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <StaggerGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" delay={0.24}>
         <Card
           title="Recently posted"
           icon={<ListChecks className="h-4 w-4" />}
@@ -421,11 +422,11 @@ export default async function DashboardPage() {
             </div>
           )}
         </Card>
-      </div>
+      </StaggerGroup>
 
       {/* Every part of the app stays visible */}
       <Card title="Everything you can do" icon={<Sparkles className="h-4 w-4" />}>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+        <StaggerGroup className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4" delay={0.3}>
           <Action href="/app/compose" title="Create a post" body="Write once, send everywhere." icon={<Send className="h-4 w-4" />} />
           <Action href="/app/posts" title="My posts" body="What went out and what's next." icon={<ListChecks className="h-4 w-4" />} />
           <Action href="/app/queue" title="Schedule" body="Choose when posts go out." icon={<CalendarClock className="h-4 w-4" />} soon />
@@ -434,7 +435,7 @@ export default async function DashboardPage() {
           <Action href="/app/accounts" title="My accounts" body="Your connected accounts." icon={<Users2 className="h-4 w-4" />} />
           <Action href="/app/settings" title="Settings" body="Workspace and credits." icon={<Settings className="h-4 w-4" />} />
           <Action href="/onboarding" title="Redo setup" body="Update your brand details." icon={<Check className="h-4 w-4" />} />
-        </div>
+        </StaggerGroup>
       </Card>
     </div>
   );

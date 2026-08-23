@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { StaggerGroup } from "@/components/motion-stagger";
 
 /**
  * App chrome with a collapsible navigation drawer.
@@ -84,7 +85,11 @@ export function AppShell({
           content otherwise ran the full width of an ultrawide display, giving
           unreadably long rows. The header shares the wrapper so the two stay
           aligned. */}
-      <div className="relative mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-[1600px] flex-col gap-4">
+      {/* Entry choreography: header first, then the page. Uses the CSS stagger
+          engine rather than JS timing — it carries a timer backstop that snaps
+          to the final state if the transition never runs, so a throttled frame
+          loop can't leave the app invisible. */}
+      <StaggerGroup className="relative mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-[1600px] flex-col gap-4">
         <header className="nx-glass flex items-center justify-between gap-4 rounded-3xl px-4 py-3">
           <button
             type="button"
@@ -101,7 +106,7 @@ export function AppShell({
         </header>
 
         <main className="flex-1 rounded-3xl">{children}</main>
-      </div>
+      </StaggerGroup>
     </div>
   );
 }
