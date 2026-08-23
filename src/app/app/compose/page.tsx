@@ -26,19 +26,19 @@ export default async function ComposePage() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="font-display text-3xl font-bold">Create post</h1>
-      <p className="mt-2 text-slate-500">
+      <p className="mt-2 text-slate-400">
         Write once and send it to all your accounts at the same time — now, or at a time
         you choose.
       </p>
 
       {error && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
           {error}
         </div>
       )}
 
       {!error && accounts.length === 0 && (
-        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-300">
           You don&apos;t have any accounts connected yet, so there&apos;s nowhere to post
           to.{" "}
           <Link href="/app/accounts" className="font-medium underline">

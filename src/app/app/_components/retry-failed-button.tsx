@@ -25,7 +25,7 @@ export function RetryFailedButton() {
         {pending ? "Trying again…" : "Try again"}
       </motion.button>
       {state && (
-        <span className={"text-xs " + (state.ok ? "text-emerald-700" : "text-red-700")}>
+        <span className={"text-xs " + (state.ok ? "text-emerald-700" : "text-red-300")}>
           {state.message}
         </span>
       )}

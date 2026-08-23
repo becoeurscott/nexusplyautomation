@@ -26,7 +26,7 @@ export function platformLabel(platform?: string | null): string {
 
 export function PlatformBadge({ platform }: { platform?: string | null }) {
   return (
-    <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+    <span className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-300">
       {platformLabel(platform)}
     </span>
   );

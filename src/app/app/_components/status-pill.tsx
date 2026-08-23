@@ -6,14 +6,14 @@
  * tidied version of the original rather than a wrong guess.
  */
 const STATUSES: Record<string, { label: string; className: string }> = {
-  published: { label: "Posted", className: "bg-emerald-50 text-emerald-700" },
-  scheduled: { label: "Scheduled", className: "bg-blue-50 text-blue-700" },
-  queued: { label: "Waiting to go out", className: "bg-blue-50 text-blue-700" },
-  pending: { label: "Waiting to go out", className: "bg-blue-50 text-blue-700" },
-  processing: { label: "Sending now", className: "bg-amber-50 text-amber-700" },
-  draft: { label: "Draft", className: "bg-slate-100 text-slate-600" },
-  failed: { label: "Didn't send", className: "bg-red-50 text-red-700" },
-  error: { label: "Didn't send", className: "bg-red-50 text-red-700" },
+  published: { label: "Posted", className: "bg-emerald-500/15/15 text-emerald-300" },
+  scheduled: { label: "Scheduled", className: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)]" },
+  queued: { label: "Waiting to go out", className: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)]" },
+  pending: { label: "Waiting to go out", className: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)]" },
+  processing: { label: "Sending now", className: "bg-amber-400/15 text-amber-300" },
+  draft: { label: "Draft", className: "bg-white/10 text-slate-300" },
+  failed: { label: "Didn't send", className: "bg-red-500/15 text-red-300" },
+  error: { label: "Didn't send", className: "bg-red-500/15 text-red-300" },
 };
 
 export function StatusPill({ status }: { status?: string | null }) {
@@ -23,7 +23,7 @@ export function StatusPill({ status }: { status?: string | null }) {
     <span
       className={
         "rounded-full px-2.5 py-1 text-xs font-medium " +
-        (known?.className ?? "bg-slate-100 text-slate-600")
+        (known?.className ?? "bg-white/10 text-slate-300")
       }
     >
       {label}

@@ -19,24 +19,23 @@ export function Card({
   return (
     <section
       className={
-        "rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] " +
-        className
+        "nx-glass nx-sheen rounded-2xl p-5 " + className
       }
     >
       {title && (
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             {icon && (
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#dbeafe] text-[color:var(--nx-blue)]">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[color:var(--nx-blue)]/25 text-[color:var(--nx-blue-soft)]">
                 {icon}
               </span>
             )}
-            <h2 className="text-[15px] font-semibold text-slate-800">{title}</h2>
+            <h2 className="text-[15px] font-semibold text-white">{title}</h2>
           </div>
           {href && linkLabel && (
             <Link
               href={href}
-              className="shrink-0 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 transition hover:border-[color:var(--nx-blue)] hover:text-[color:var(--nx-blue)]"
+              className="shrink-0 rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-slate-300 transition hover:border-[color:var(--nx-blue-soft)] hover:text-white"
             >
               {linkLabel}
             </Link>
@@ -50,7 +49,7 @@ export function Card({
 
 export function EmptyNote({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">{children}</p>
+    <p className="nx-glass-soft rounded-xl p-4 text-sm text-slate-400">{children}</p>
   );
 }
 
@@ -62,13 +61,13 @@ export function Dial({ value, max }: { value: number; max: number }) {
   return (
     <div className="relative mx-auto grid h-28 w-28 place-items-center">
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r={r} fill="none" stroke="#e2e8f0" strokeWidth="8" />
+        <circle cx="40" cy="40" r={r} fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="8" />
         <circle
           cx="40"
           cy="40"
           r={r}
           fill="none"
-          stroke="var(--nx-blue)"
+          stroke="var(--nx-blue-soft)"
           strokeWidth="8"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -76,7 +75,7 @@ export function Dial({ value, max }: { value: number; max: number }) {
         />
       </svg>
       <div className="text-center">
-        <div className="text-2xl font-bold leading-none text-slate-800">{value}</div>
+        <div className="text-2xl font-bold leading-none text-white">{value}</div>
         <div className="mt-1 text-[10px] uppercase tracking-wide text-slate-400">
           credits
         </div>
@@ -95,7 +94,7 @@ export function Avatar({ name }: { name: string }) {
     .slice(0, 2)
     .toUpperCase();
   return (
-    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#dbeafe] text-xs font-bold text-[#1d4ed8]">
+    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[color:var(--nx-blue)]/25 text-xs font-bold text-[color:var(--nx-blue-soft)]">
       {initials || "?"}
     </span>
   );
@@ -103,11 +102,11 @@ export function Avatar({ name }: { name: string }) {
 
 export function Bar({ pct, tone = "blue" }: { pct: number; tone?: "blue" | "amber" }) {
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/12">
       <div
         className={
           "h-full rounded-full " +
-          (tone === "amber" ? "bg-amber-400" : "bg-[color:var(--nx-blue)]")
+          (tone === "amber" ? "bg-amber-400" : "bg-[color:var(--nx-blue-soft)]")
         }
         style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
       />

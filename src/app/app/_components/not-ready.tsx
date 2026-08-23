@@ -18,14 +18,14 @@ export function NotReadyYet({
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="font-display text-3xl font-bold">{title}</h1>
-      <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-10 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#dbeafe] text-[color:var(--nx-blue)]">
+      <div className="mt-8 rounded-2xl border border-white/10 nx-glass p-10 text-center">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[color:var(--nx-blue)]/25 text-[color:var(--nx-blue-soft)]">
           <LifeBuoy className="h-6 w-6" />
         </div>
-        <div className="mt-4 text-lg font-semibold text-slate-800">
+        <div className="mt-4 text-lg font-semibold text-white">
           We&apos;re still setting up your account
         </div>
-        <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+        <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
           As soon as your social accounts are linked, {what} will show up here. This
           usually only takes a little while — you don&apos;t need to do anything.
         </p>

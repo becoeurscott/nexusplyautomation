@@ -202,3 +202,71 @@ body {
     transition: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Liquid glass — frosted panels over the brand gradient               */
+/* ------------------------------------------------------------------ */
+:root {
+  --glass-line: rgba(255, 255, 255, 0.14);
+  --e-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --e-pen: cubic-bezier(0.37, 0.01, 0.2, 1);
+}
+
+/* The panel itself: a translucent white gradient rather than a flat fill, so
+   the storm/gradient behind it still reads through the surface. `saturate`
+   is what stops the blurred backdrop going grey. */
+.nx-glass {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.075) 24%,
+    rgba(255, 255, 255, 0.062) 78%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border: 1px solid var(--glass-line);
+  -webkit-backdrop-filter: blur(26px) saturate(118%);
+  backdrop-filter: blur(26px) saturate(118%);
+}
+
+/* Softer variant for nested surfaces — stacking full-strength blur inside
+   another blurred panel is expensive and reads muddy. No backdrop-filter. */
+.nx-glass-soft {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Specular sweep, once, on entry. */
+.nx-sheen::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 38%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.17) 50%,
+    transparent 100%
+  );
+  transform: translate3d(-150%, 0, 0) skewX(-18deg);
+  animation: nx-sheen 1.15s var(--e-soft) 0.5s 1 both;
+}
+@keyframes nx-sheen {
+  from {
+    transform: translate3d(-150%, 0, 0) skewX(-18deg);
+  }
+  to {
+    transform: translate3d(260%, 0, 0) skewX(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-sheen::after {
+    display: none;
+  }
+}

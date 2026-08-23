@@ -7,15 +7,15 @@ import { platformLabel } from "../_components/platform-badge";
 export type AccountOption = { id: string; name: string; platform: string };
 
 const PLATFORM_COLORS: Record<string, string> = {
-  tiktok: "bg-pink-50 text-pink-700 border-pink-200",
-  youtube: "bg-red-50 text-red-700 border-red-200",
-  instagram: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
-  facebook: "bg-blue-50 text-blue-700 border-blue-200",
-  linkedin: "bg-sky-50 text-sky-700 border-sky-200",
-  x: "bg-slate-100 text-slate-700 border-slate-200",
-  threads: "bg-slate-100 text-slate-700 border-slate-200",
-  pinterest: "bg-red-50 text-red-700 border-red-200",
-  unknown: "bg-slate-100 text-slate-700 border-slate-200",
+  tiktok: "bg-pink-500/15 text-pink-300 border-pink-400/25",
+  youtube: "bg-red-500/15 text-red-300 border-red-400/25",
+  instagram: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-400/25",
+  facebook: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)] border-[color:var(--nx-blue)]/30",
+  linkedin: "bg-sky-500/15 text-sky-300 border-sky-400/25",
+  x: "bg-white/10 text-slate-200 border-white/15",
+  threads: "bg-white/10 text-slate-200 border-white/15",
+  pinterest: "bg-red-500/15 text-red-300 border-red-400/25",
+  unknown: "bg-white/10 text-slate-200 border-white/15",
 };
 
 export function ComposeForm({
@@ -58,7 +58,7 @@ export function ComposeForm({
               <label
                 key={a.id}
                 className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm ${
-                  active ? "border-[color:var(--nx-blue)] bg-[#eff6ff]" : "border-slate-100 bg-white"
+                  active ? "border-[color:var(--nx-blue)] bg-[color:var(--nx-blue)]/15" : "border-white/10 bg-white/5"
                 }`}
               >
                 <input
@@ -85,7 +85,7 @@ export function ComposeForm({
       <div>
         <label className="mb-2 block text-sm font-medium">
           Your message{" "}
-          <span className="ml-1 font-normal text-slate-500">
+          <span className="ml-1 font-normal text-slate-400">
             ({content.length} characters)
           </span>
         </label>
@@ -94,7 +94,7 @@ export function ComposeForm({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={6}
-          className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-[color:var(--nx-blue)]"
+          className="block w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-[color:var(--nx-blue)]"
           placeholder="What do you want to share?"
         />
         {fieldErrors.content && (
@@ -105,15 +105,15 @@ export function ComposeForm({
       <div>
         <label className="mb-2 block text-sm font-medium">
           Photo or video link{" "}
-          <span className="font-normal text-slate-500">(optional)</span>
+          <span className="font-normal text-slate-400">(optional)</span>
         </label>
         <textarea
           name="mediaUrls"
           rows={2}
           placeholder="https://example.com/my-photo.jpg"
-          className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[color:var(--nx-blue)]"
+          className="block w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm outline-none focus:border-[color:var(--nx-blue)]"
         />
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-400">
           If your photo or video is already online, paste its link here. To add more than
           one, put each link on its own line. Uploading files straight from your phone or
           computer is coming soon.
@@ -138,7 +138,7 @@ export function ComposeForm({
             type="datetime-local"
             name="scheduledAt"
             required
-            className="ml-6 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[color:var(--nx-blue)]"
+            className="ml-6 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm outline-none focus:border-[color:var(--nx-blue)]"
           />
         )}
         <label className="flex items-center gap-2 text-sm">
@@ -155,7 +155,7 @@ export function ComposeForm({
       </fieldset>
 
       {state && !state.ok && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
           {state.error}
         </div>
       )}

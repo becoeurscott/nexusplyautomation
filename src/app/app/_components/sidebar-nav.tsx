@@ -47,7 +47,7 @@ export function SidebarNav() {
               transition={{ duration: 0.12 }}
               className={
                 "relative flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 " +
-                (active ? "" : "hover:bg-slate-50")
+                (active ? "" : "hover:bg-white/8")
               }
             >
               {active && (
@@ -60,7 +60,7 @@ export function SidebarNav() {
               <span
                 className={
                   "relative z-10 flex items-center gap-3 transition-colors duration-200 " +
-                  (active ? "text-white" : "text-slate-600")
+                  (active ? "text-white" : "text-slate-300")
                 }
               >
                 <item.icon className="h-4 w-4" />

@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "./reveal";
 import { Tap } from "@/components/tap";
 import { Accent } from "./section";
 import { Rating } from "./social-proof";
+import { DashboardPreview } from "./dashboard-preview";
 
 export function Hero() {
   return (
@@ -74,15 +74,10 @@ export function Hero() {
       </div>
 
       <Reveal delay={0.8} className="relative mx-auto mt-16 max-w-6xl px-6">
+        {/* Rendered from markup, not a screenshot — see dashboard-preview.tsx.
+            The stock template image here showed a product that doesn't exist. */}
         <div className="nx-card overflow-hidden !rounded-[18px] p-1.5">
-          <Image
-            src="/img/nexus/hero-dashboard.png"
-            alt="The NexusPly dashboard"
-            width={1536}
-            height={1024}
-            priority
-            className="w-full rounded-[12px]"
-          />
+          <DashboardPreview />
         </div>
         <div
           className="absolute inset-x-16 -bottom-8 h-24 rounded-full bg-[color:var(--nx-blue)]/25 blur-[60px]"

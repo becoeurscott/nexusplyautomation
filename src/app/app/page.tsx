@@ -130,26 +130,26 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-bold">Dashboard</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-400">
             Everything you can do, all in one place.
           </p>
         </div>
-        <span className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500">
+        <span className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-400">
           {today}
         </span>
       </div>
 
       {/* Anything broken comes first, with the fix attached */}
       {failed.length > 0 && (
-        <section className="rounded-2xl border border-red-200 bg-red-50 p-5">
+        <section className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
               <div>
-                <div className="text-sm font-semibold text-red-900">
+                <div className="text-sm font-semibold text-red-200">
                   {failed.length} post{failed.length === 1 ? "" : "s"} didn&apos;t send
                 </div>
-                <div className="text-xs text-red-800">
+                <div className="text-xs text-red-300">
                   This usually fixes itself on a second try.
                 </div>
               </div>
@@ -203,18 +203,18 @@ export default async function DashboardPage() {
 
         <Card title="Credits" icon={<Coins className="h-4 w-4" />} className="lg:col-span-3">
           <Dial value={balance} max={DIAL_MAX} />
-          <p className="mt-3 text-center text-xs text-slate-500">
+          <p className="mt-3 text-center text-xs text-slate-400">
             Used each time you post or create something with AI.
           </p>
           {recentCredits.length > 0 && (
-            <ul className="mt-4 space-y-1.5 border-t border-slate-100 pt-3">
+            <ul className="mt-4 space-y-1.5 border-t border-white/10 pt-3">
               {recentCredits.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="truncate text-slate-500">{creditReason(c.reason, c.refType)}</span>
+                  <span className="truncate text-slate-400">{creditReason(c.reason, c.refType)}</span>
                   <span
                     className={
                       "shrink-0 font-semibold " +
-                      (c.delta >= 0 ? "text-emerald-600" : "text-slate-700")
+                      (c.delta >= 0 ? "text-emerald-600" : "text-slate-200")
                     }
                   >
                     {c.delta >= 0 ? "+" : ""}
@@ -231,7 +231,7 @@ export default async function DashboardPage() {
           icon={<Sparkles className="h-4 w-4" />}
           className="lg:col-span-4"
         >
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-xs text-slate-400">
             <span>
               {stepsDone} of {steps.length} done
             </span>
@@ -242,11 +242,11 @@ export default async function DashboardPage() {
           </div>
           <ul className="mt-4 space-y-2">
             {steps.map((s) => (
-              <li key={s.label} className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
+              <li key={s.label} className="flex items-start gap-3 rounded-xl bg-white/5 p-3">
                 <span
                   className={
                     "mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full " +
-                    (s.done ? "bg-emerald-500 text-white" : "border border-slate-300 bg-white")
+                    (s.done ? "bg-emerald-500 text-white" : "border border-white/25 bg-transparent")
                   }
                   aria-hidden
                 >
@@ -256,12 +256,12 @@ export default async function DashboardPage() {
                   <span
                     className={
                       "block text-sm " +
-                      (s.done ? "text-slate-500 line-through" : "text-slate-800")
+                      (s.done ? "text-slate-400 line-through" : "text-white")
                     }
                   >
                     {s.label}
                   </span>
-                  <span className="mt-0.5 block text-xs text-slate-500">{s.hint}</span>
+                  <span className="mt-0.5 block text-xs text-slate-400">{s.hint}</span>
                 </span>
               </li>
             ))}
@@ -270,11 +270,11 @@ export default async function DashboardPage() {
       </div>
 
       {!client && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <div className="text-sm font-semibold text-amber-900">
+        <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-5 py-4">
+          <div className="text-sm font-semibold text-amber-200">
             We&apos;re still setting up your account
           </div>
-          <div className="text-xs text-amber-800">
+          <div className="text-xs text-amber-300">
             You&apos;ll be able to post as soon as your social accounts are linked.
           </div>
         </div>
@@ -316,9 +316,9 @@ export default async function DashboardPage() {
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {metrics.map((m) => (
-                <div key={m.label} className="rounded-xl bg-slate-50 p-3 text-center">
-                  <div className="text-lg font-bold text-slate-800">{m.value}</div>
-                  <div className="mt-0.5 text-xs text-slate-500">{m.label}</div>
+                <div key={m.label} className="rounded-xl bg-white/5 p-3 text-center">
+                  <div className="text-lg font-bold text-white">{m.value}</div>
+                  <div className="mt-0.5 text-xs text-slate-400">{m.label}</div>
                 </div>
               ))}
             </div>
@@ -360,19 +360,19 @@ export default async function DashboardPage() {
                 return (
                   <div
                     key={str(m, "id") ?? String(i)}
-                    className="flex gap-3 rounded-xl border border-slate-100 p-3"
+                    className="flex gap-3 nx-glass-soft rounded-xl p-3"
                   >
                     <Avatar name={who} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-xs font-semibold text-slate-700">
+                        <span className="truncate text-xs font-semibold text-slate-200">
                           {who}
                         </span>
                         <span className="shrink-0 text-xs text-slate-400">
                           {formatDateTime(str(m, "createdAt", "created_at", "timestamp"))}
                         </span>
                       </div>
-                      <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">
+                      <p className="mt-0.5 line-clamp-2 text-sm text-slate-300">
                         {str(m, "text", "message", "content", "body") ?? ""}
                       </p>
                     </div>
@@ -400,14 +400,14 @@ export default async function DashboardPage() {
                 return (
                   <div
                     key={str(a, "id") ?? String(i)}
-                    className="flex items-center gap-3 rounded-xl border border-slate-100 p-3"
+                    className="flex items-center gap-3 nx-glass-soft rounded-xl p-3"
                   >
                     <Avatar name={name} />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-slate-800">
+                      <div className="truncate text-sm font-medium text-white">
                         {name}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-400">
                         {platformLabel(str(a, "platform"))}
                       </div>
                     </div>
@@ -450,12 +450,12 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
 
 function PostCard({ post, when }: { post: SimplePost; when: string | null }) {
   return (
-    <div className="rounded-xl border border-slate-100 p-3 transition hover:border-slate-200">
+    <div className="nx-glass-soft rounded-xl p-3 transition hover:border-white/15">
       <div className="flex items-center justify-between gap-2">
         <StatusPill status={post.status} />
         <span className="shrink-0 text-xs text-slate-400">{formatDateTime(when)}</span>
       </div>
-      <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+      <p className="mt-2 line-clamp-2 text-sm text-slate-300">
         {post.content || "No text"}
       </p>
     </div>
@@ -478,17 +478,17 @@ function Action({
   return (
     <Link
       href={href}
-      className="group rounded-xl border border-slate-100 bg-white p-4 transition hover:border-[color:var(--nx-blue)] hover:shadow-[0_16px_40px_-24px_rgba(10,99,244,0.5)]"
+      className="group nx-glass-soft rounded-xl p-4 transition hover:border-[color:var(--nx-blue)] hover:shadow-[0_16px_40px_-24px_rgba(10,99,244,0.5)]"
     >
       <div className="flex items-center justify-between gap-2">
-        <div className="text-sm font-semibold text-slate-800">{title}</div>
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#dbeafe] text-[color:var(--nx-blue)]">
+        <div className="text-sm font-semibold text-white">{title}</div>
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[color:var(--nx-blue)]/25 text-[color:var(--nx-blue-soft)]">
           {icon}
         </span>
       </div>
-      <div className="mt-1 text-xs text-slate-500">{body}</div>
+      <div className="mt-1 text-xs text-slate-400">{body}</div>
       {soon && (
-        <div className="mt-2 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+        <div className="mt-2 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-slate-400">
           Coming soon
         </div>
       )}

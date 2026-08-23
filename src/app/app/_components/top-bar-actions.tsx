@@ -37,20 +37,20 @@ export function TopBarActions({
       <Link
         href="/app/settings"
         title="Credits left"
-        className="hidden items-center gap-1.5 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:flex"
+        className="hidden items-center gap-1.5 rounded-full border border-white/15 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 sm:flex"
       >
         <Coins className="h-4 w-4 text-slate-400" />
         {balance}
-        <span className="text-slate-500">credits</span>
+        <span className="text-slate-400">credits</span>
       </Link>
 
       <div className="ml-1 flex items-center gap-2 py-1 pl-1 pr-2">
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#dbeafe] text-xs font-bold text-[#1d4ed8]">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[color:var(--nx-blue)]/25 text-xs font-bold text-[color:var(--nx-blue-soft)]">
           {initials}
         </span>
         <div className="hidden leading-tight sm:block">
           <div className="text-sm font-semibold">{name}</div>
-          <div className="text-[11px] text-slate-500">{email}</div>
+          <div className="text-[11px] text-slate-400">{email}</div>
         </div>
       </div>
     </div>
