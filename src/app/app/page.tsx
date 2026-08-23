@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Send,
   Settings,
+  Sparkles,
   Users2,
 } from "lucide-react";
 import { db } from "@/db";
@@ -20,8 +21,9 @@ import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { getBalance } from "@/lib/credits";
 import { StatusPill } from "./_components/status-pill";
-import { PlatformBadge } from "./_components/platform-badge";
+import { PlatformBadge, platformLabel } from "./_components/platform-badge";
 import { RetryFailedButton } from "./_components/retry-failed-button";
+import { Card, EmptyNote, Dial, Avatar, Bar } from "./_components/dashboard-ui";
 import {
   bySoonest,
   compact,
@@ -34,7 +36,6 @@ import {
   type SimplePost,
 } from "./_lib/normalize";
 
-/** Metrics worth showing, in the order people care about them. */
 const METRICS: { keys: string[]; label: string }[] = [
   { keys: ["impressions", "views", "videoViews", "reach"], label: "Views" },
   { keys: ["likes", "reactions", "favourites"], label: "Likes" },
@@ -43,6 +44,9 @@ const METRICS: { keys: string[]; label: string }[] = [
   { keys: ["followers", "followerCount", "newFollowers"], label: "Followers" },
   { keys: ["engagementRate", "engagement"], label: "Engagement" },
 ];
+
+/** Reference point for the credit dial — the smallest plan's monthly grant. */
+const DIAL_MAX = 500;
 
 export default async function DashboardPage() {
   const { session, workspace } = await requireWorkspace();
@@ -54,8 +58,8 @@ export default async function DashboardPage() {
   const client = await zernioForWorkspace(workspace.id);
   const balance = await getBalance(workspace.id);
 
-  // Every source is fetched together and every one can fail on its own —
-  // one bad endpoint must not take the whole dashboard down with it.
+  // Every source is fetched together and each catches on its own — one bad
+  // endpoint degrades a single panel instead of the whole page.
   const [accountsRaw, postsRaw, failedRaw, analyticsRaw, commentsRaw, mentionsRaw] =
     client
       ? await Promise.all([
@@ -78,7 +82,7 @@ export default async function DashboardPage() {
     .from(creditLedger)
     .where(eq(creditLedger.orgId, workspace.id))
     .orderBy(desc(creditLedger.createdAt))
-    .limit(4)
+    .limit(3)
     .catch(() => []);
 
   const accounts = rows(accountsRaw);
@@ -101,7 +105,7 @@ export default async function DashboardPage() {
     .slice(0, 4);
 
   const metrics = readMetrics(analyticsRaw);
-  const messages = [...rows(commentsRaw), ...rows(mentionsRaw)].slice(0, 4);
+  const messages = [...rows(commentsRaw), ...rows(mentionsRaw)].slice(0, 3);
 
   const today = new Date().toLocaleDateString("en-GB", {
     weekday: "short",
@@ -111,100 +115,33 @@ export default async function DashboardPage() {
   });
   const firstName = (session.user.name ?? "there").split(" ")[0];
 
+  const steps = [
+    { done: accounts.length > 0, label: "Connect your accounts", hint: "We do this for you" },
+    { done: posts.length > 0, label: "Create your first post", hint: "Ready when you are" },
+    { done: upcoming.length > 0, label: "Schedule something", hint: "Keep your page active" },
+  ];
+  const stepsDone = steps.filter((s) => s.done).length;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Everything you can do, all in one place.
-        </p>
-      </div>
-
-      {/* Greeting + headline numbers */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="relative overflow-hidden rounded-2xl bg-[color:var(--nx-blue)] p-6 text-white lg:col-span-2">
-          <div
-            className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-white/15 blur-2xl"
-            aria-hidden
-          />
-          <div className="text-sm text-white/80">{today}</div>
-          <div className="font-display mt-5 text-3xl font-bold">Hi, {firstName}</div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Pill>{accounts.length} accounts</Pill>
-            <Pill>{posts.length >= 100 ? "100+" : posts.length} posts</Pill>
-            <Pill>{upcoming.length} lined up</Pill>
-            <Pill>{balance} credits</Pill>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href="/app/compose"
-              className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[color:var(--nx-blue)] hover:bg-white/90"
-            >
-              Create a post
-            </Link>
-            <Link
-              href="/app/posts"
-              className="rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              See my posts
-            </Link>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-100 bg-white p-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold">Credits</div>
-            <Coins className="h-4 w-4 text-slate-400" />
-          </div>
-          <div className="mx-auto mt-4 grid h-20 w-20 place-items-center rounded-full bg-[#dbeafe]">
-            <div className="grid h-14 w-14 place-items-center rounded-full bg-[color:var(--nx-blue)] text-lg font-bold text-white">
-              {balance}
-            </div>
-          </div>
-          <p className="mt-3 text-center text-xs text-slate-500">
-            Used each time you post or create something with AI.
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Everything you can do, all in one place.
           </p>
-          {recentCredits.length > 0 && (
-            <ul className="mt-4 space-y-1.5 border-t border-slate-100 pt-3">
-              {recentCredits.map((c) => (
-                <li key={c.id} className="flex items-center justify-between text-xs">
-                  <span className="truncate text-slate-500">
-                    {creditReason(c.reason)}
-                  </span>
-                  <span
-                    className={
-                      "ml-2 shrink-0 font-semibold " +
-                      (c.delta >= 0 ? "text-emerald-600" : "text-slate-700")
-                    }
-                  >
-                    {c.delta >= 0 ? "+" : ""}
-                    {c.delta}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
+        <span className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500">
+          {today}
+        </span>
       </div>
-
-      {!client && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <div className="text-sm font-semibold text-amber-900">
-            We&apos;re still setting up your account
-          </div>
-          <div className="text-xs text-amber-800">
-            You&apos;ll be able to post as soon as your social accounts are linked.
-            There&apos;s nothing you need to do.
-          </div>
-        </div>
-      )}
 
       {/* Anything broken comes first, with the fix attached */}
       {failed.length > 0 && (
         <section className="rounded-2xl border border-red-200 bg-red-50 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
               <div>
                 <div className="text-sm font-semibold text-red-900">
                   {failed.length} post{failed.length === 1 ? "" : "s"} didn&apos;t send
@@ -216,252 +153,298 @@ export default async function DashboardPage() {
             </div>
             <RetryFailedButton />
           </div>
-          <ul className="mt-3 space-y-1.5">
-            {failed.slice(0, 3).map((p) => (
-              <li key={p.id} className="truncate text-xs text-red-900">
-                {p.content ? p.content.slice(0, 90) : "Post"}
-              </li>
-            ))}
-          </ul>
         </section>
       )}
 
-      {/* Scheduled + recently published side by side */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel
+      {/* Row 1 — greeting, credits dial, setup progress */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="relative overflow-hidden rounded-2xl bg-[color:var(--nx-blue)] p-6 text-white lg:col-span-5">
+          <div
+            className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full bg-white/15 blur-2xl"
+            aria-hidden
+          />
+          <div className="relative">
+            <div className="font-display text-2xl font-bold">Hi, {firstName}</div>
+            <p className="mt-1 text-sm text-white/80">{workspace.name}</p>
+            <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+              <Stat label="Accounts" value={accounts.length} />
+              <Stat label="Posts" value={posts.length >= 100 ? "100+" : posts.length} />
+              <Stat label="Lined up" value={upcoming.length} />
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                href="/app/compose"
+                className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[color:var(--nx-blue)] transition hover:bg-white/90"
+              >
+                Create a post
+              </Link>
+              <Link
+                href="/app/posts"
+                className="rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                My posts
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <Card title="Credits" icon={<Coins className="h-4 w-4" />} className="lg:col-span-3">
+          <Dial value={balance} max={DIAL_MAX} />
+          <p className="mt-3 text-center text-xs text-slate-500">
+            Used each time you post or create something with AI.
+          </p>
+          {recentCredits.length > 0 && (
+            <ul className="mt-4 space-y-1.5 border-t border-slate-100 pt-3">
+              {recentCredits.map((c) => (
+                <li key={c.id} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="truncate text-slate-500">{creditReason(c.reason)}</span>
+                  <span
+                    className={
+                      "shrink-0 font-semibold " +
+                      (c.delta >= 0 ? "text-emerald-600" : "text-slate-700")
+                    }
+                  >
+                    {c.delta >= 0 ? "+" : ""}
+                    {c.delta}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        <Card
+          title="Getting started"
+          icon={<Sparkles className="h-4 w-4" />}
+          className="lg:col-span-4"
+        >
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>
+              {stepsDone} of {steps.length} done
+            </span>
+            <span>{Math.round((stepsDone / steps.length) * 100)}%</span>
+          </div>
+          <div className="mt-2">
+            <Bar pct={(stepsDone / steps.length) * 100} />
+          </div>
+          <ul className="mt-4 space-y-2">
+            {steps.map((s) => (
+              <li key={s.label} className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
+                <span
+                  className={
+                    "mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full " +
+                    (s.done ? "bg-emerald-500 text-white" : "border border-slate-300 bg-white")
+                  }
+                  aria-hidden
+                >
+                  {s.done && <Check className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0">
+                  <span
+                    className={
+                      "block text-sm " +
+                      (s.done ? "text-slate-500 line-through" : "text-slate-800")
+                    }
+                  >
+                    {s.label}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-slate-500">{s.hint}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+
+      {!client && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <div className="text-sm font-semibold text-amber-900">
+            We&apos;re still setting up your account
+          </div>
+          <div className="text-xs text-amber-800">
+            You&apos;ll be able to post as soon as your social accounts are linked.
+          </div>
+        </div>
+      )}
+
+      {/* Row 2 — schedule + results rail */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        <Card
           title="Going out next"
           icon={<CalendarClock className="h-4 w-4" />}
           href="/app/queue"
           linkLabel="Schedule"
-          empty={
-            upcoming.length === 0
-              ? "Nothing scheduled yet. Create a post and pick a time for it to go out."
-              : null
-          }
+          className="lg:col-span-8"
         >
-          {upcoming.map((p) => (
-            <PostLine key={p.id} post={p} when={p.scheduledAt} />
-          ))}
-        </Panel>
+          {upcoming.length === 0 ? (
+            <EmptyNote>
+              Nothing scheduled yet. Create a post and pick a time for it to go out.
+            </EmptyNote>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {upcoming.map((p) => (
+                <PostCard key={p.id} post={p} when={p.scheduledAt} />
+              ))}
+            </div>
+          )}
+        </Card>
 
-        <Panel
-          title="Recently posted"
-          icon={<ListChecks className="h-4 w-4" />}
-          href="/app/posts"
-          linkLabel="All posts"
-          empty={
-            recent.length === 0
-              ? "Nothing has gone out yet. Your published posts will show up here."
-              : null
-          }
-        >
-          {recent.map((p) => (
-            <PostLine key={p.id} post={p} when={p.publishedAt} />
-          ))}
-        </Panel>
-      </div>
-
-      {/* Results + messages */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel
+        <Card
           title="Your results"
           icon={<BarChart3 className="h-4 w-4" />}
           href="/app/analytics"
           linkLabel="Results"
-          empty={
-            metrics.length === 0
-              ? "Once your posts have been out for a while, how they performed will show up here."
-              : null
-          }
+          className="lg:col-span-4"
         >
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {metrics.map((m) => (
-              <div key={m.label} className="rounded-xl bg-slate-50 p-3 text-center">
-                <div className="text-lg font-bold text-slate-800">{m.value}</div>
-                <div className="mt-0.5 text-xs text-slate-500">{m.label}</div>
-              </div>
-            ))}
-          </div>
-        </Panel>
+          {metrics.length === 0 ? (
+            <EmptyNote>
+              Once your posts have been out for a while, how they performed shows up here.
+            </EmptyNote>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {metrics.map((m) => (
+                <div key={m.label} className="rounded-xl bg-slate-50 p-3 text-center">
+                  <div className="text-lg font-bold text-slate-800">{m.value}</div>
+                  <div className="mt-0.5 text-xs text-slate-500">{m.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
 
-        <Panel
+      {/* Row 3 — recent, messages, accounts */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card
+          title="Recently posted"
+          icon={<ListChecks className="h-4 w-4" />}
+          href="/app/posts"
+          linkLabel="All"
+        >
+          {recent.length === 0 ? (
+            <EmptyNote>Nothing has gone out yet.</EmptyNote>
+          ) : (
+            <div className="space-y-2">
+              {recent.map((p) => (
+                <PostCard key={p.id} post={p} when={p.publishedAt} />
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <Card
           title="Latest messages"
           icon={<MessageSquare className="h-4 w-4" />}
           href="/app/inbox"
-          linkLabel="Messages"
-          empty={
-            messages.length === 0
-              ? "Comments and mentions from your accounts will appear here."
-              : null
-          }
+          linkLabel="All"
         >
-          {messages.map((m, i) => (
-            <div
-              key={str(m, "id") ?? String(i)}
-              className="rounded-xl border border-slate-100 p-3"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="truncate text-xs font-semibold text-slate-700">
-                  {str(m, "authorName", "author", "username", "from") ?? "Someone"}
-                </div>
-                <div className="shrink-0 text-xs text-slate-400">
-                  {formatDateTime(str(m, "createdAt", "created_at", "timestamp"))}
-                </div>
-              </div>
-              <div className="mt-1 line-clamp-2 text-sm text-slate-600">
-                {str(m, "text", "message", "content", "body") ?? ""}
-              </div>
+          {messages.length === 0 ? (
+            <EmptyNote>Comments and mentions will appear here.</EmptyNote>
+          ) : (
+            <div className="space-y-2">
+              {messages.map((m, i) => {
+                const who = str(m, "authorName", "author", "username", "from") ?? "Someone";
+                return (
+                  <div
+                    key={str(m, "id") ?? String(i)}
+                    className="flex gap-3 rounded-xl border border-slate-100 p-3"
+                  >
+                    <Avatar name={who} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate text-xs font-semibold text-slate-700">
+                          {who}
+                        </span>
+                        <span className="shrink-0 text-xs text-slate-400">
+                          {formatDateTime(str(m, "createdAt", "created_at", "timestamp"))}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">
+                        {str(m, "text", "message", "content", "body") ?? ""}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </Panel>
+          )}
+        </Card>
+
+        <Card
+          title="Your accounts"
+          icon={<Users2 className="h-4 w-4" />}
+          href="/app/accounts"
+          linkLabel="All"
+        >
+          {accounts.length === 0 ? (
+            <EmptyNote>
+              No accounts connected yet. We&apos;ll link them for you.
+            </EmptyNote>
+          ) : (
+            <div className="space-y-2">
+              {accounts.slice(0, 5).map((a, i) => {
+                const name = str(a, "name", "username", "handle") ?? "Account";
+                return (
+                  <div
+                    key={str(a, "id") ?? String(i)}
+                    className="flex items-center gap-3 rounded-xl border border-slate-100 p-3"
+                  >
+                    <Avatar name={name} />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-slate-800">
+                        {name}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {platformLabel(str(a, "platform"))}
+                      </div>
+                    </div>
+                    <PlatformBadge platform={str(a, "platform")} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Card>
       </div>
 
-      {/* Accounts */}
-      <Panel
-        title="Your accounts"
-        icon={<Users2 className="h-4 w-4" />}
-        href="/app/accounts"
-        linkLabel="All accounts"
-        empty={
-          accounts.length === 0
-            ? "No accounts connected yet. We'll link them for you — nothing to set up."
-            : null
-        }
-      >
-        <div className="flex flex-wrap gap-2">
-          {accounts.slice(0, 8).map((a, i) => (
-            <div
-              key={str(a, "id") ?? String(i)}
-              className="flex items-center gap-2 rounded-xl border border-slate-100 px-3 py-2"
-            >
-              <span className="truncate text-sm text-slate-700">
-                {str(a, "name", "username", "handle") ?? "Account"}
-              </span>
-              <PlatformBadge platform={str(a, "platform")} />
-            </div>
-          ))}
+      {/* Every part of the app stays visible */}
+      <Card title="Everything you can do" icon={<Sparkles className="h-4 w-4" />}>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Action href="/app/compose" title="Create a post" body="Write once, send everywhere." icon={<Send className="h-4 w-4" />} />
+          <Action href="/app/posts" title="My posts" body="What went out and what's next." icon={<ListChecks className="h-4 w-4" />} />
+          <Action href="/app/queue" title="Schedule" body="Choose when posts go out." icon={<CalendarClock className="h-4 w-4" />} soon />
+          <Action href="/app/analytics" title="Results" body="See how posts perform." icon={<BarChart3 className="h-4 w-4" />} soon />
+          <Action href="/app/inbox" title="Messages" body="Reply to comments and mentions." icon={<Inbox className="h-4 w-4" />} soon />
+          <Action href="/app/accounts" title="My accounts" body="Your connected accounts." icon={<Users2 className="h-4 w-4" />} />
+          <Action href="/app/settings" title="Settings" body="Workspace and credits." icon={<Settings className="h-4 w-4" />} />
+          <Action href="/onboarding" title="Redo setup" body="Update your brand details." icon={<Check className="h-4 w-4" />} />
         </div>
-      </Panel>
-
-      {/* Every part of the app, listed plainly */}
-      <section className="rounded-2xl border border-slate-100 bg-white p-6">
-        <div className="text-sm font-semibold">Everything you can do</div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <Action
-            href="/app/compose"
-            title="Create a post"
-            body="Write once and send it to all your accounts."
-            icon={<Send className="h-4 w-4" />}
-          />
-          <Action
-            href="/app/posts"
-            title="My posts"
-            body="See what went out and what's lined up."
-            icon={<ListChecks className="h-4 w-4" />}
-          />
-          <Action
-            href="/app/queue"
-            title="Schedule"
-            body="Choose the times your posts go out."
-            icon={<CalendarClock className="h-4 w-4" />}
-            soon
-          />
-          <Action
-            href="/app/analytics"
-            title="Results"
-            body="See how your posts are performing."
-            icon={<BarChart3 className="h-4 w-4" />}
-            soon
-          />
-          <Action
-            href="/app/inbox"
-            title="Messages"
-            body="Read and reply to comments and mentions."
-            icon={<Inbox className="h-4 w-4" />}
-            soon
-          />
-          <Action
-            href="/app/accounts"
-            title="My accounts"
-            body="See which social accounts are connected."
-            icon={<Users2 className="h-4 w-4" />}
-          />
-          <Action
-            href="/app/settings"
-            title="Settings"
-            body="Your workspace details and credits."
-            icon={<Settings className="h-4 w-4" />}
-          />
-          <Action
-            href="/onboarding"
-            title="Redo setup"
-            body="Update what we know about your brand."
-            icon={<Check className="h-4 w-4" />}
-          />
-        </div>
-      </section>
+      </Card>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
 
-function Pill({ children }: { children: React.ReactNode }) {
+function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium">
-      {children}
-    </span>
+    <div className="rounded-xl bg-white/15 px-2 py-2.5">
+      <div className="text-lg font-bold leading-none">{value}</div>
+      <div className="mt-1 text-[11px] text-white/75">{label}</div>
+    </div>
   );
 }
 
-function Panel({
-  title,
-  icon,
-  href,
-  linkLabel,
-  empty,
-  children,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  href: string;
-  linkLabel: string;
-  empty: string | null;
-  children: React.ReactNode;
-}) {
+function PostCard({ post, when }: { post: SimplePost; when: string | null }) {
   return (
-    <section className="rounded-2xl border border-slate-100 bg-white p-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#dbeafe] text-[color:var(--nx-blue)]">
-            {icon}
-          </span>
-          {title}
-        </div>
-        <Link
-          href={href}
-          className="shrink-0 text-xs font-medium text-[color:var(--nx-blue)] hover:underline"
-        >
-          {linkLabel}
-        </Link>
-      </div>
-      <div className="mt-4 space-y-2">
-        {empty ? <p className="text-sm text-slate-500">{empty}</p> : children}
-      </div>
-    </section>
-  );
-}
-
-function PostLine({ post, when }: { post: SimplePost; when: string | null }) {
-  return (
-    <div className="rounded-xl border border-slate-100 p-3">
+    <div className="rounded-xl border border-slate-100 p-3 transition hover:border-slate-200">
       <div className="flex items-center justify-between gap-2">
         <StatusPill status={post.status} />
         <span className="shrink-0 text-xs text-slate-400">{formatDateTime(when)}</span>
       </div>
-      <div className="mt-1.5 line-clamp-2 text-sm text-slate-600">
+      <p className="mt-2 line-clamp-2 text-sm text-slate-600">
         {post.content || "No text"}
-      </div>
+      </p>
     </div>
   );
 }
