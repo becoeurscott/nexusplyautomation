@@ -56,7 +56,7 @@ export default function SignUpPage() {
 
         <StaggerItem>
           <p className="mt-2 text-center text-sm text-slate-400">
-            30 free credits, no card required
+            14-day free trial · No card required
           </p>
         </StaggerItem>
 

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { organizationMembers, organizations } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { startTrial } from "@/lib/billing/trial";
 
 export const requireSession = cache(async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -38,10 +39,15 @@ export const requireOrg = cache(async () => {
   const slug = `w-${userId.slice(0, 8)}`;
   const name = session.user.name ? `${session.user.name}'s workspace` : "My workspace";
 
-  await db
+  // `returning()` tells us whether this call actually created the org. The
+  // insert is idempotent, so concurrent first-hits (layout + page in parallel)
+  // both reach here but only one gets a row back — which is what keeps the
+  // trial from being granted twice.
+  const created = await db
     .insert(organizations)
     .values({ name, slug, ownerId: userId })
-    .onConflictDoNothing({ target: organizations.slug });
+    .onConflictDoNothing({ target: organizations.slug })
+    .returning({ id: organizations.id });
 
   const [org] = await db
     .select()
@@ -54,6 +60,17 @@ export const requireOrg = cache(async () => {
     .insert(organizationMembers)
     .values({ orgId: org.id, userId, role: "owner" })
     .onConflictDoNothing();
+
+  if (created.length > 0) {
+    // Never throws — a missing plan row must not block someone signing up.
+    await startTrial(org.id);
+    const [fresh] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.id, org.id))
+      .limit(1);
+    if (fresh) return { session, org: fresh, role: "owner" as const };
+  }
 
   return { session, org, role: "owner" as const };
 });

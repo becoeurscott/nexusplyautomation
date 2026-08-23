@@ -14,7 +14,8 @@ export function Pricing() {
             Simple pricing. Powerful automation.
           </h2>
           <p className="mt-4 text-lg text-slate-400">
-            Start small and move up when your business needs more.
+            Start small and move up when your business needs more. Every plan starts
+            with a 14-day free trial.
           </p>
         </div>
 
@@ -73,9 +74,14 @@ export function Pricing() {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-xs text-slate-500">
-          Pay by card, M-Pesa, MTN MoMo, Orange Money or bank transfer · Cancel any time
-        </p>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-slate-400">
+            14-day free trial on every plan · No card required to start · Cancel any time
+          </p>
+          <p className="mt-2 text-xs text-slate-500">
+            Pay by card, M-Pesa, MTN MoMo, Orange Money or bank transfer
+          </p>
+        </div>
       </div>
     </section>
   );

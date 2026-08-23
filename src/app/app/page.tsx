@@ -20,6 +20,7 @@ import { creditLedger } from "@/db/schema";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { getBalance } from "@/lib/credits";
+import { getTrialState } from "@/lib/billing/trial";
 import { StatusPill } from "./_components/status-pill";
 import { PlatformBadge, platformLabel } from "./_components/platform-badge";
 import { RetryFailedButton } from "./_components/retry-failed-button";
@@ -57,6 +58,7 @@ export default async function DashboardPage() {
 
   const client = await zernioForWorkspace(workspace.id);
   const balance = await getBalance(workspace.id);
+  const trial = await getTrialState(workspace.id);
 
   // Every source is fetched together and each catches on its own — one bad
   // endpoint degrades a single panel instead of the whole page.
@@ -77,6 +79,7 @@ export default async function DashboardPage() {
       id: creditLedger.id,
       delta: creditLedger.delta,
       reason: creditLedger.reason,
+      refType: creditLedger.refType,
       createdAt: creditLedger.createdAt,
     })
     .from(creditLedger)
@@ -158,7 +161,10 @@ export default async function DashboardPage() {
 
       {/* Row 1 — greeting, credits dial, setup progress */}
       <div className="grid gap-4 lg:grid-cols-12">
-        <div className="relative overflow-hidden rounded-2xl bg-[color:var(--nx-blue)] p-6 text-white lg:col-span-5">
+        {/* self-start so the card hugs its content — grid rows stretch every
+            item to the tallest panel by default, which left a tall band of
+            empty blue under the buttons. */}
+        <div className="relative self-start overflow-hidden rounded-2xl bg-[color:var(--nx-blue)] p-6 text-white lg:col-span-5">
           <div
             className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full bg-white/15 blur-2xl"
             aria-hidden
@@ -166,6 +172,13 @@ export default async function DashboardPage() {
           <div className="relative">
             <div className="font-display text-2xl font-bold">Hi, {firstName}</div>
             <p className="mt-1 text-sm text-white/80">{workspace.name}</p>
+            {trial?.status === "trialing" && (
+              <p className="mt-2 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-medium">
+                {trial.expired
+                  ? "Your free trial has ended"
+                  : `Free trial · ${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left`}
+              </p>
+            )}
             <div className="mt-5 grid grid-cols-3 gap-2 text-center">
               <Stat label="Accounts" value={accounts.length} />
               <Stat label="Posts" value={posts.length >= 100 ? "100+" : posts.length} />
@@ -197,7 +210,7 @@ export default async function DashboardPage() {
             <ul className="mt-4 space-y-1.5 border-t border-slate-100 pt-3">
               {recentCredits.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="truncate text-slate-500">{creditReason(c.reason)}</span>
+                  <span className="truncate text-slate-500">{creditReason(c.reason, c.refType)}</span>
                   <span
                     className={
                       "shrink-0 font-semibold " +
@@ -503,7 +516,8 @@ function readMetrics(raw: unknown): { label: string; value: string }[] {
  * Ledger reasons are a fixed enum of internal keys (see credit_ledger.reason).
  * Every one is mapped, so a customer never reads "action_debit".
  */
-function creditReason(reason: string): string {
+function creditReason(reason: string, refType?: string | null): string {
+  if (reason === "plan_refill" && refType === "trial") return "Trial credits added";
   const map: Record<string, string> = {
     plan_refill: "Monthly credits added",
     top_up: "Credits bought",

@@ -44,26 +44,16 @@ export function BrandVoice() {
           Your audience should know when they&apos;re seeing your content.
         </p>
       </Reveal>
-    </Section>
-  );
-}
 
-const WEEK = [
-  { day: "Monday", body: "Educational content." },
-  { day: "Tuesday", body: "Customer-focused content." },
-  { day: "Wednesday", body: "Brand story." },
-  { day: "Thursday", body: "Industry insight." },
-  { day: "Friday", body: "Offer or promotional content." },
-  { day: "Weekend", body: "Community and engagement content." },
-];
+      {/* The weekly plan was its own section; it is the evidence for the claim
+          above, so it reads better attached to it than as a separate scroll. */}
+      <Reveal className="mx-auto mt-16 max-w-2xl text-center">
+        <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
+          From &ldquo;I need to post something&rdquo; to an entire content system.
+        </h3>
+      </Reveal>
 
-export function ContentSystem() {
-  return (
-    <Section
-      title="From “I need to post something” to an entire content system."
-      tone="glow"
-    >
-      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {WEEK.map((d, i) => (
           <Reveal key={d.day} delay={Math.min(i * 0.05, 0.3)}>
             <article className="nx-card nx-card--soft h-full p-6">
@@ -90,53 +80,23 @@ export function ContentSystem() {
               Build My Content System
             </Link>
           </Tap>
+          <p className="mt-3 text-xs text-slate-500">
+            14-day trial · No card required · Cancel any time
+          </p>
         </div>
       </Reveal>
     </Section>
   );
 }
 
-const LOOP = [
-  {
-    title: "Create",
-    body: "Turn your ideas, services, promotions and expertise into social content.",
-  },
-  { title: "Approve", body: "Review your content before it goes live." },
-  { title: "Schedule", body: "Set your publishing calendar once." },
-  {
-    title: "Publish",
-    body: "Your approved content goes out according to your schedule.",
-  },
-  { title: "Analyze", body: "See which content gets attention and engagement." },
-  {
-    title: "Improve",
-    body: "Use the results to continuously improve your content strategy.",
-  },
+const WEEK = [
+  { day: "Monday", body: "Educational content." },
+  { day: "Tuesday", body: "Customer-focused content." },
+  { day: "Wednesday", body: "Brand story." },
+  { day: "Thursday", body: "Industry insight." },
+  { day: "Friday", body: "Offer or promotional content." },
+  { day: "Weekend", body: "Community and engagement content." },
 ];
-
-export function WorkLoop() {
-  return (
-    <Section title="Your social media works while you work.">
-      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {LOOP.map((s, i) => (
-          <Reveal key={s.title} delay={Math.min(i * 0.05, 0.3)}>
-            <article className="nx-card nx-card--soft h-full p-6">
-              <div className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[color:var(--nx-blue)] text-sm font-bold text-white">
-                  {i + 1}
-                </span>
-                <h3 className="font-display text-lg font-semibold text-white">
-                  {s.title}
-                </h3>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-slate-400">{s.body}</p>
-            </article>
-          </Reveal>
-        ))}
-      </div>
-    </Section>
-  );
-}
 
 export function Approval() {
   return (

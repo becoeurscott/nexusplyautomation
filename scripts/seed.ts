@@ -5,7 +5,7 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { sql } from "drizzle-orm";
+import { notInArray, sql } from "drizzle-orm";
 import { creditPrices, plans, topUpProducts } from "../src/db/schema";
 import { CREDIT_PRICE_SEED } from "../src/lib/credits/prices";
 import { PLANS, TOP_UP_PACKS } from "../src/lib/i18n/pricing";
@@ -46,7 +46,16 @@ async function main() {
         },
       });
   }
-  console.log(`plans: ${PLANS.length}`);
+  // Retire any plan code no longer offered. Rows are deactivated rather than
+  // deleted because `subscriptions.plan_id` references them — an old customer
+  // must still resolve to the plan they signed up on.
+  const live = PLANS.map((p) => p.code);
+  const retired = await db
+    .update(plans)
+    .set({ active: false })
+    .where(notInArray(plans.code, live))
+    .returning({ code: plans.code });
+  console.log(`plans: ${PLANS.length} active, ${retired.length} retired`);
 
   // Top-up packs — USD only.
   await db.delete(topUpProducts);

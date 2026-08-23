@@ -1,6 +1,7 @@
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { getBalance } from "@/lib/credits";
+import { getTrialState } from "@/lib/billing/trial";
 import { friendlyError } from "@/lib/user-message";
 import { PlatformBadge } from "../_components/platform-badge";
 
@@ -10,6 +11,7 @@ export default async function SettingsPage() {
   const { workspace } = await requireWorkspace();
   const client = await zernioForWorkspace(workspace.id);
   const balance = await getBalance(workspace.id);
+  const trial = await getTrialState(workspace.id);
 
   let accounts: Account[] = [];
   let error: string | null = null;
@@ -37,6 +39,18 @@ export default async function SettingsPage() {
             <dt className="text-slate-500">Credits left</dt>
             <dd className="font-medium text-slate-800">{balance}</dd>
           </div>
+          {trial && (
+            <div className="flex items-center justify-between">
+              <dt className="text-slate-500">Plan</dt>
+              <dd className="font-medium text-slate-800">
+                {trial.status === "trialing"
+                  ? trial.expired
+                    ? "Free trial (ended)"
+                    : `Free trial · ${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left`
+                  : "Active"}
+              </dd>
+            </div>
+          )}
         </dl>
       </section>
 

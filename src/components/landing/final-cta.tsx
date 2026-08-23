@@ -48,6 +48,25 @@ export function FinalCTA() {
               time on your business.
             </p>
 
+            {/* Closing lines absorbed from the old "shouldn't depend on
+                motivation" section — they land harder as the sign-off. */}
+            <div className="mx-auto mt-10 flex max-w-lg flex-wrap justify-center gap-2">
+              {[
+                "Plan once.",
+                "Create consistently.",
+                "Publish automatically.",
+                "Measure the results.",
+                "Improve over time.",
+              ].map((l) => (
+                <span
+                  key={l}
+                  className="rounded-full border border-white/25 bg-black/20 px-3.5 py-1.5 text-xs font-medium text-white/90"
+                >
+                  {l}
+                </span>
+              ))}
+            </div>
+
             <p className="font-display mt-10 text-2xl font-bold text-white">
               Your social media, handled.
             </p>
@@ -63,7 +82,10 @@ export function FinalCTA() {
               </Tap>
             </div>
 
-            <p className="mt-6 text-xs italic text-white/70">
+            <p className="mt-4 text-xs text-white/80">
+              14-day trial · No card required · Cancel any time
+            </p>
+            <p className="mt-3 text-xs italic text-white/70">
               Create. Schedule. Publish. Engage. Measure. Automate.
             </p>
           </div>

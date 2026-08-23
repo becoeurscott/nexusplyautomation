@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Reveal } from "./reveal";
 import { Tap } from "@/components/tap";
 import { Accent } from "./section";
+import { Rating } from "./social-proof";
 
 export function Hero() {
   return (
@@ -10,24 +11,22 @@ export function Hero() {
       <div className="absolute inset-0 nx-grid" aria-hidden />
       <div className="relative mx-auto max-w-5xl px-6 text-center">
         <Reveal>
-          <div className="mx-auto inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-4">
-            <Image
-              src="/img/nexus/avatars-strip.png"
-              alt="Businesses using NexusPly"
-              width={81}
-              height={17}
-              className="h-[17px] w-auto"
-            />
-            <span className="text-xs font-medium text-slate-200">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-slate-200">
               Content · Publishing · Engagement · Growth
             </span>
+            {/* Renders only once there is a real, sourced rating. */}
+            <Rating />
           </div>
         </Reveal>
 
         <Reveal delay={0.2}>
           <h1 className="font-display mx-auto mt-7 max-w-3xl text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
-            Your social media, <Accent>handled</Accent>.
+            Still posting <Accent>manually</Accent>?
           </h1>
+          <p className="font-display mx-auto mt-4 text-2xl font-semibold text-slate-100 sm:text-3xl">
+            Your social media, handled.
+          </p>
         </Reveal>
 
         <Reveal delay={0.35}>
@@ -66,6 +65,9 @@ export function Hero() {
             </Tap>
           </div>
           <p className="mt-5 text-xs text-slate-500">
+            14-day trial · No card required · Cancel any time
+          </p>
+          <p className="mt-1.5 text-xs text-slate-500">
             No complicated setup. No social media expertise required.
           </p>
         </Reveal>
