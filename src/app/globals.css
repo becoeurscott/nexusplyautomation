@@ -216,10 +216,15 @@ body {
 /* The panel itself: a translucent white gradient rather than a flat fill, so
    the storm/gradient behind it still reads through the surface. `saturate`
    is what stops the blurred backdrop going grey. */
+/* Purely a surface: background, border, blur. It must not set `position`,
+   `overflow` or any other layout property — this rule is emitted after
+   Tailwind's utilities and has the same specificity as a single class, so
+   source order wins and it would silently beat `fixed`, `absolute` or
+   `sticky` on any element that combined them. It previously set
+   `position: relative`, which knocked the nav drawer out of `fixed` and back
+   into the flow, pushing the whole page down by the height of the nav.
+   Containment for the sheen lives on `.nx-sheen` instead. */
 .nx-glass {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.1) 0%,
@@ -240,6 +245,15 @@ body {
 }
 
 /* Specular sweep, once, on entry. */
+/* The sheen is absolutely positioned, so its host needs containment — kept
+   here rather than on .nx-glass so the surface stays layout-neutral. Nothing
+   that uses .nx-sheen is itself positioned. */
+.nx-sheen {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
 .nx-sheen::after {
   content: "";
   position: absolute;
