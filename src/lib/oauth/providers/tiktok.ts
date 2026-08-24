@@ -84,7 +84,7 @@ export const tiktokProvider: OAuthProvider = {
     return Boolean(process.env.TIKTOK_CLIENT_KEY && process.env.TIKTOK_CLIENT_SECRET);
   },
 
-  authorizeUrl(state: string): string {
+  authorizeUrl(state: string, codeChallenge: string): string {
     const clientKey = process.env.TIKTOK_CLIENT_KEY;
     if (!clientKey) throw new Error("TIKTOK_CLIENT_KEY is not set");
 
@@ -94,11 +94,13 @@ export const tiktokProvider: OAuthProvider = {
       scope: SCOPE,
       redirect_uri: redirectUri(),
       state,
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
     });
     return `${AUTHORIZE_URL}?${params.toString()}`;
   },
 
-  async exchangeCode(code: string): Promise<TokenSet> {
+  async exchangeCode(code: string, codeVerifier: string): Promise<TokenSet> {
     const clientKey = process.env.TIKTOK_CLIENT_KEY;
     const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
     if (!clientKey || !clientSecret) {
@@ -110,6 +112,7 @@ export const tiktokProvider: OAuthProvider = {
       code,
       grant_type: "authorization_code",
       redirect_uri: redirectUri(),
+      code_verifier: codeVerifier,
     });
   },
 

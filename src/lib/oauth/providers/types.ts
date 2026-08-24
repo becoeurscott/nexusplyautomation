@@ -28,10 +28,21 @@ export interface OAuthProvider {
   readonly platform: "tiktok";
   /** True when this provider's client id/secret are configured. */
   isConfigured(): boolean;
-  /** Builds the URL to send the user to for consent. */
-  authorizeUrl(state: string): string;
-  /** Exchanges an authorization code (from the callback) for tokens. */
-  exchangeCode(code: string): Promise<TokenSet>;
+  /**
+   * Builds the URL to send the user to for consent. `codeChallenge` is
+   * PKCE (RFC 7636) — TikTok's live authorize endpoint rejects this app's
+   * requests without one (`errCode 10007, error_type code_challenge`),
+   * confirmed against the real API rather than assumed from docs, which
+   * describe PKCE as mobile/desktop-only. Required here regardless.
+   */
+  authorizeUrl(state: string, codeChallenge: string): string;
+  /**
+   * Exchanges an authorization code (from the callback) for tokens.
+   * `codeVerifier` is the PKCE secret that produced the challenge passed to
+   * `authorizeUrl` for this same attempt — the token endpoint recomputes the
+   * challenge from it and rejects a mismatch.
+   */
+  exchangeCode(code: string, codeVerifier: string): Promise<TokenSet>;
   /** Uses a stored refresh token to mint a new access token. */
   refresh(refreshToken: string): Promise<TokenSet>;
 }

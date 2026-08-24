@@ -355,7 +355,7 @@ export const subscriptions = pgTable("subscriptions", {
     .notNull()
     .references(() => plans.id),
   provider: text("provider", {
-    enum: ["flutterwave", "paystack", "intasend", "mtn_momo", "orange", "lemonsqueezy", "manual"],
+    enum: ["stripe", "flutterwave", "paystack", "intasend", "mtn_momo", "orange", "lemonsqueezy", "manual"],
   }).notNull(),
   providerSubRef: text("provider_sub_ref"),
   status: text("status", {

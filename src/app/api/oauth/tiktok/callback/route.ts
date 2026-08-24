@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { auditEvents } from "@/db/schema";
 import { assertMember, requireSession } from "@/lib/workspace";
-import { saveConnection, siteUrl, verifyState } from "@/lib/oauth/connections";
+import { PKCE_COOKIE_NAME, saveConnection, siteUrl, verifyState } from "@/lib/oauth/connections";
 import { tiktokProvider } from "@/lib/oauth/providers/tiktok";
 
 /**
@@ -13,7 +13,13 @@ import { tiktokProvider } from "@/lib/oauth/providers/tiktok";
  * page a real person is looking at, not an API a client can retry.
  */
 export async function GET(req: NextRequest) {
-  const redirectTo = (path: string) => NextResponse.redirect(new URL(path, siteUrl()));
+  // Cleared on every exit path, success or failure — the verifier is
+  // single-use, so nothing legitimate ever reads it twice.
+  const redirectTo = (path: string) => {
+    const res = NextResponse.redirect(new URL(path, siteUrl()));
+    res.cookies.delete(PKCE_COOKIE_NAME);
+    return res;
+  };
 
   const url = req.nextUrl;
   const error = url.searchParams.get("error");
@@ -24,7 +30,11 @@ export async function GET(req: NextRequest) {
 
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  if (!code || !state) {
+  const codeVerifier = req.cookies.get(PKCE_COOKIE_NAME)?.value;
+  if (!code || !state || !codeVerifier) {
+    // Missing verifier means either the cookie expired (flow took too long),
+    // the browser blocked it, or this is /callback hit directly without a
+    // matching /start — none of those are recoverable by retrying in place.
     return redirectTo("/app/accounts?error=tiktok_missing_params");
   }
 
@@ -45,7 +55,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const tokens = await tiktokProvider.exchangeCode(code);
+    const tokens = await tiktokProvider.exchangeCode(code, codeVerifier);
     await saveConnection({
       orgId: payload.orgId,
       connectedById: session.user.id,

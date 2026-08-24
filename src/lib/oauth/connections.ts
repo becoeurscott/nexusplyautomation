@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { and, desc, eq, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import { socialConnections } from "@/db/schema";
@@ -37,6 +37,28 @@ function stateSecret(): Buffer {
 }
 
 const STATE_TTL_SECONDS = 10 * 60;
+
+/**
+ * PKCE (RFC 7636). TikTok's live authorize endpoint rejects this app without
+ * it — confirmed against the real API, not assumed from docs (TikTok's own
+ * OAuth guide describes the verifier as "mobile/desktop only"; the actual
+ * redirect came back `errCode 10007, error_type code_challenge` without one).
+ *
+ * The verifier travels in an httpOnly cookie set at /start and read at
+ * /callback, not through the state param — round-tripping it through the URL
+ * would leak it via referrer headers, which defeats part of what PKCE is for.
+ */
+export const PKCE_COOKIE_NAME = "tiktok_pkce_verifier";
+
+export function generateCodeVerifier(): string {
+  // 32 random bytes -> 43 base64url chars, inside RFC 7636's 43-128 range
+  // and drawn from its allowed alphabet.
+  return randomBytes(32).toString("base64url");
+}
+
+export function codeChallengeFromVerifier(verifier: string): string {
+  return createHash("sha256").update(verifier).digest("base64url");
+}
 
 export function signState(orgId: string, platform: string): string {
   const payload: StatePayload = {
