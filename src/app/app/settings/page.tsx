@@ -4,6 +4,7 @@ import { getBalance } from "@/lib/credits";
 import { getTrialState } from "@/lib/billing/trial";
 import { friendlyError } from "@/lib/user-message";
 import { PlatformBadge } from "../_components/platform-badge";
+import { ConnectAccountButton } from "../_components/connect-account-button";
 import { rows, str } from "../_lib/normalize";
 
 type Account = { id: string; name?: string; platform?: string };
@@ -59,12 +60,16 @@ export default async function SettingsPage() {
       </section>
 
       <section className="mt-6 nx-glass rounded-2xl p-6">
-        <h2 className="text-lg font-semibold">Connected accounts</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          Posting, results, and messages are all set up for you — there&apos;s nothing to
-          configure here. Want another account connected? Contact support and we&apos;ll
-          link it for you.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">Connected accounts</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Posting, results, and messages are all set up for you — there&apos;s
+              nothing to configure here.
+            </p>
+          </div>
+          <ConnectAccountButton />
+        </div>
 
         {error && (
           <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
@@ -80,8 +85,12 @@ export default async function SettingsPage() {
         )}
 
         {!error && client && accounts.length === 0 && (
-          <div className="mt-4 rounded-xl border border-dashed border-white/15 p-6 text-center text-sm text-slate-400">
-            No accounts connected yet. Once we link your first one, it will show up here.
+          <div className="mt-4 rounded-xl border border-dashed border-white/15 p-6 text-center">
+            <p className="text-sm text-slate-400">
+              No accounts connected yet. Once we link your first one, it will show up
+              here.
+            </p>
+            <ConnectAccountButton variant="empty-state" />
           </div>
         )}
 

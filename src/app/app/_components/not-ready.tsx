@@ -10,10 +10,13 @@ import { LifeBuoy } from "lucide-react";
 export function NotReadyYet({
   title,
   what,
+  action,
 }: {
   title: string;
   /** Plain-language name for what's unavailable, e.g. "your posts". */
   what: string;
+  /** Optional real next step, e.g. a ConnectAccountButton, rendered below the copy. */
+  action?: React.ReactNode;
 }) {
   return (
     <div className="mx-auto max-w-3xl">
@@ -32,6 +35,7 @@ export function NotReadyYet({
         <p className="mt-4 text-xs text-slate-400">
           Been waiting longer than a day? Contact support and we&apos;ll sort it out.
         </p>
+        {action && <div className="mt-5 flex justify-center">{action}</div>}
       </div>
     </div>
   );
