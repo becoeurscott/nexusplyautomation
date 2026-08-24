@@ -143,6 +143,69 @@ export const cloneviralCredentials = pgTable("cloneviral_credentials", {
 });
 
 // ============================================================
+// SOCIAL CONNECTIONS — direct OAuth to each platform's own API.
+//
+// Deliberately NOT the same shape as zernio_credentials / cloneviral_credentials
+// above: those are one secret per org (PK on orgId alone). A social connection
+// is one row per *connected account*, because an org — an agency especially —
+// can hold several accounts on the same platform. The unique key is therefore
+// (orgId, platform, providerAccountId): reconnecting the same account updates
+// its row instead of creating a duplicate.
+//
+// Also not the same table as better-auth's own `accounts` above — that one
+// stores tokens for signing a *person* into NexusPly (e.g. "sign in with
+// Google"), keyed to users.id. This table stores tokens for *publishing to a
+// platform on an org's behalf*, keyed to organizations.id, and has nothing to
+// do with how anyone logs in. Conflating the two would let a personal sign-in
+// token be mistaken for a publishing credential shared across a team.
+//
+// Access and refresh tokens get their own independent {ciphertext,iv,tag}
+// triple — AES-256-GCM needs a fresh IV per encryption, so one triple can't
+// cover two secrets.
+// ============================================================
+
+export const socialConnections = pgTable(
+  "social_connections",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    platform: text("platform", { enum: ["tiktok"] }).notNull(),
+    // The platform's own id for this account (TikTok: open_id) — not our uuid.
+    providerAccountId: text("provider_account_id").notNull(),
+    displayName: text("display_name"),
+    accessTokenCiphertext: text("access_token_ciphertext").notNull(),
+    accessTokenIv: text("access_token_iv").notNull(),
+    accessTokenTag: text("access_token_tag").notNull(),
+    // Nullable: not every grant issues a refresh token.
+    refreshTokenCiphertext: text("refresh_token_ciphertext"),
+    refreshTokenIv: text("refresh_token_iv"),
+    refreshTokenTag: text("refresh_token_tag"),
+    scope: text("scope"),
+    status: text("status", {
+      enum: ["active", "expired", "revoked", "error"],
+    })
+      .notNull()
+      .default("active"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    connectedById: text("connected_by_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("social_connections_org_platform_account_idx").on(
+      t.orgId,
+      t.platform,
+      t.providerAccountId,
+    ),
+    index("social_connections_org_idx").on(t.orgId),
+  ],
+);
+
+// ============================================================
 // BRAND CONTEXT (the moat)
 // ============================================================
 

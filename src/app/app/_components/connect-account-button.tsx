@@ -6,8 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Link2, X } from "lucide-react";
 import { requestAccountConnection, type ConnectRequestState } from "../actions";
 
+/**
+ * TikTok is the one platform with a real OAuth flow built (see
+ * src/lib/oauth/) — clicking it goes straight to /api/oauth/tiktok/start
+ * instead of the request form below. Every other platform stays on the
+ * request flow until it's actually built; see the plan for why (each one
+ * gates real posting behind a separate, multi-week platform approval, so
+ * they're added one at a time rather than all stubbed out now).
+ */
+const OAUTH_PLATFORMS = [{ key: "tiktok", label: "TikTok", startUrl: "/api/oauth/tiktok/start" }];
+
 const PLATFORMS = [
-  { key: "tiktok", label: "TikTok" },
   { key: "instagram", label: "Instagram" },
   { key: "facebook", label: "Facebook" },
   { key: "youtube", label: "YouTube" },
@@ -132,7 +141,24 @@ export function ConnectAccountButton({
                     set up on your side.
                   </p>
 
+                  {/* Real, immediate connect — no request, no waiting. */}
                   <div className="mt-4 grid grid-cols-2 gap-2">
+                    {OAUTH_PLATFORMS.map((p) => (
+                      <a
+                        key={p.key}
+                        href={p.startUrl}
+                        className="flex items-center justify-between rounded-xl border border-[color:var(--nx-blue)]/50 bg-[color:var(--nx-blue)]/10 px-3 py-2.5 text-left text-sm text-white transition hover:border-[color:var(--nx-blue)]"
+                      >
+                        {p.label}
+                        <span className="text-xs text-[color:var(--nx-blue-soft)]">Connect now</span>
+                      </a>
+                    ))}
+                  </div>
+
+                  <p className="mt-4 text-xs uppercase tracking-wide text-slate-500">
+                    Other platforms — we&apos;ll connect these for you
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
                     {PLATFORMS.map((p) => (
                       <button
                         key={p.key}

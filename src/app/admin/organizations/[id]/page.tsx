@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { creditLedger, organizationMembers, organizations, users } from "@/db/schema";
-import { adjustCredits, toggleOnboarded } from "./actions";
+import { listConnections } from "@/lib/oauth/connections";
+import { platformLabel } from "@/app/app/_components/platform-badge";
+import { adjustCredits, disconnectSocialConnection, toggleOnboarded } from "./actions";
 
 export default async function AdminOrgDetailPage({
   params,
@@ -26,6 +28,8 @@ export default async function AdminOrgDetailPage({
     .where(eq(creditLedger.orgId, id))
     .orderBy(desc(creditLedger.createdAt))
     .limit(30);
+
+  const connections = await listConnections(id);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -101,6 +105,57 @@ export default async function AdminOrgDetailPage({
             {org.onboardingCompletedAt ? "Reset onboarding" : "Mark onboarded"}
           </button>
         </form>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          Connections
+        </h2>
+        <p className="mt-1 text-xs text-slate-500">
+          Direct OAuth connections this org holds independent of Zernio — see
+          src/lib/oauth. Disconnecting deletes the stored tokens; the org can
+          reconnect any time from My accounts.
+        </p>
+        <ul className="mt-3 divide-y divide-white/5 text-sm">
+          {connections.map((c) => (
+            <li key={c.id} className="flex items-center justify-between gap-3 py-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{platformLabel(c.platform)}</span>
+                  <span
+                    className={
+                      "rounded-full px-2 py-0.5 text-[10px] uppercase " +
+                      (c.status === "active"
+                        ? "bg-emerald-500/15 text-emerald-300"
+                        : c.status === "error" || c.status === "revoked"
+                          ? "bg-red-500/15 text-red-300"
+                          : "bg-amber-500/15 text-amber-300")
+                    }
+                  >
+                    {c.status}
+                  </span>
+                </div>
+                <div className="truncate text-xs text-slate-500">
+                  {c.displayName ?? c.providerAccountId} · expires{" "}
+                  {c.expiresAt ? c.expiresAt.toLocaleString() : "unknown"}
+                </div>
+              </div>
+              <form action={disconnectSocialConnection}>
+                <input type="hidden" name="orgId" value={org.id} />
+                <input type="hidden" name="connectionId" value={c.id} />
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-lg border border-white/15 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5"
+                >
+                  Disconnect
+                </button>
+              </form>
+            </li>
+          ))}
+          {connections.length === 0 && (
+            <li className="py-4 text-center text-slate-500">No direct connections.</li>
+          )}
+        </ul>
       </section>
 
       <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
