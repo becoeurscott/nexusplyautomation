@@ -78,7 +78,15 @@ export function AppShell({
         >
           <X className="h-4 w-4" />
         </button>
-        {sidebar}
+        {/* The nav content (logo, 8 links, workspace card, footer) is taller
+            than the panel on any shorter viewport — a laptop with browser
+            chrome, a landscape phone, a resized window — and the panel had no
+            overflow handling, so items past the bottom (often "Log out")
+            rendered off-screen with no way to reach them. min-h-0 is required
+            here: a flex child's default min-height is auto, which lets its
+            content push past the container instead of triggering this scroll.
+            The close button stays outside this div so it doesn't scroll away. */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{sidebar}</div>
       </aside>
 
       {/* Capped and centred: with the nav now an overlay rather than a column,
