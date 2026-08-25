@@ -18,6 +18,13 @@ const db = drizzle(client);
 async function main() {
   // Plans — one row per plan code. USD only, cost-plus (see src/lib/i18n/pricing.ts).
   for (const [i, p] of PLANS.entries()) {
+    // Stripe price ids live in env, not in PLANS — src/lib/i18n/pricing.ts
+    // stays pure data with zero env reads. Undefined (not yet created in
+    // Stripe) is fine; that plan just isn't checkout-able until it's set.
+    const codeUpper = p.code.toUpperCase();
+    const stripePriceIdMonthly = process.env[`STRIPE_PRICE_${codeUpper}_MONTHLY`] || null;
+    const stripePriceIdAnnual = process.env[`STRIPE_PRICE_${codeUpper}_ANNUAL`] || null;
+
     await db
       .insert(plans)
       .values({
@@ -25,6 +32,8 @@ async function main() {
         name: p.name,
         monthlyPriceLocal: String(p.priceUsd),
         annualPriceLocal: String(p.priceUsdAnnual),
+        stripePriceIdMonthly,
+        stripePriceIdAnnual,
         currency: "USD",
         includedCredits: p.credits,
         perChannelCap: p.accounts,
@@ -39,6 +48,14 @@ async function main() {
           name: p.name,
           monthlyPriceLocal: String(p.priceUsd),
           annualPriceLocal: String(p.priceUsdAnnual),
+          // COALESCE against the existing column, not a flat overwrite: this
+          // script is meant to be safe to re-run anywhere, and most
+          // environments running it won't have STRIPE_PRICE_* loaded. A flat
+          // overwrite would null out a price id that was seeded correctly
+          // once, on the very next unrelated re-run — silently breaking
+          // checkout for that plan.
+          stripePriceIdMonthly: sql`coalesce(${stripePriceIdMonthly}, ${plans.stripePriceIdMonthly})`,
+          stripePriceIdAnnual: sql`coalesce(${stripePriceIdAnnual}, ${plans.stripePriceIdAnnual})`,
           includedCredits: p.credits,
           perChannelCap: p.accounts,
           seatCap: p.seats,

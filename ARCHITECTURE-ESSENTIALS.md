@@ -27,10 +27,14 @@ The key is encrypted at rest with AES-256-GCM using a server-side `ENCRYPTION_KE
 
 **If you disagree**: don't add a "we hold the key for you" path in v1. Revisit only if a specific enterprise deal demands it.
 
-## 6. African billing is primary; USD is the fallback
-Flutterwave is the v1 provider because it covers the widest African corridor (cards + mobile money). IntaSend gets added for Kenya M-Pesa STK Push in Phase L. Paystack for Nigeria + Ghana + South Africa cards. MTN MoMo Collections and Orange Money for direct MoMo. Prices are stored per-currency in `plans.monthly_price_local` and `top_up_products.price_local`. The pricing page auto-selects currency from the org's `country`, defaulting to a geo-IP guess at signup.
+## 6. Stripe billing shipped first; African rails are deferred, not deleted
+**Superseded 2026-08-24, by explicit user instruction ("we will used stripe no more african thing for now").** The original decision below is kept for the record — the reasoning still applies to *later*, it just no longer describes what shipped first.
 
-**If you disagree**: don't wire Stripe first. It'll pull us back into a USD-only mindset and force us to launch with a payment path that half our market can't use.
+Stripe (hosted Checkout + Billing Portal) is the only payment processor wired up. `subscriptions.provider` / `payment_customers.provider` / `webhook_events_in.source` all gained a `"stripe"` value; the African-rail values (`flutterwave`, `paystack`, `intasend`, `mtn_momo`, `orange`) stay in those enums unused, and `payment_customers`/`payment_intents` are provider-generic by design — so adding a rail back is additive (a new adapter + webhook route), not a rewrite of anything Stripe touches. See `src/lib/payments/` and the Stripe billing plan for the shape of that adapter boundary.
+
+*Original decision (no longer current default, kept for context on why African rails were planned first):* Flutterwave is the v1 provider because it covers the widest African corridor (cards + mobile money). IntaSend gets added for Kenya M-Pesa STK Push in Phase L. Paystack for Nigeria + Ghana + South Africa cards. MTN MoMo Collections and Orange Money for direct MoMo. Prices are stored per-currency in `plans.monthly_price_local` and `top_up_products.price_local`. The pricing page auto-selects currency from the org's `country`, defaulting to a geo-IP guess at signup.
+
+**If you disagree**: African rails are the fast-follow, not a rejected idea — the risk this decision originally warned about (a USD-only mindset, a payment path half the market can't use) is still real and still needs addressing before African-market launch. Don't remove the unused enum values or the provider-generic shape of `payment_customers`/`payment_intents` while "cleaning up" Stripe code — that's the seam a rail gets added back through.
 
 ## 7. Admin is a separate Next.js app with its own domain
 `apps/admin` deploys separately, gated by an `admin_users` allowlist row plus a Better-Auth session. It never runs mixed with the end-user app. This means an XSS bug in a marketing widget can't reach the admin surface, and we can lock the admin domain behind IP allowlist or SSO later without touching the main app.

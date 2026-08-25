@@ -336,6 +336,11 @@ export const plans = pgTable("plans", {
   // Annual is billed as ten months — two free. Nullable so a plan can be
   // monthly-only without pretending an annual price exists.
   annualPriceLocal: numeric("annual_price_local", { precision: 12, scale: 2 }),
+  // Stripe Price ids for this plan, one per interval. Nullable — seeded from
+  // env by scripts/seed.ts once the products/prices exist in Stripe; a plan
+  // can exist here before that happens, it just can't be checked out yet.
+  stripePriceIdMonthly: text("stripe_price_id_monthly"),
+  stripePriceIdAnnual: text("stripe_price_id_annual"),
   currency: text("currency").notNull().default("USD"),
   includedCredits: integer("included_credits").notNull().default(0),
   perChannelCap: integer("per_channel_cap"), // null = unlimited
@@ -547,6 +552,7 @@ export const webhookEventsIn = pgTable(
     source: text("source", {
       enum: [
         "zernio",
+        "stripe",
         "flutterwave",
         "paystack",
         "intasend",

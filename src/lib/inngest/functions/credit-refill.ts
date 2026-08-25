@@ -20,6 +20,15 @@ import { getBalance, writeLedger } from "@/lib/credits";
  * NOTE: this resets the entire balance because there is currently only one.
  * Once purchased credit packs are sellable they must be held in a separate
  * bucket that survives this reset — see TOP_UP_PACKS in lib/i18n/pricing.ts.
+ *
+ * Skips `provider = "stripe"` subscriptions. Once a subscription is billed
+ * through Stripe, Stripe's own `current_period_end` is the source of truth —
+ * proration, annual billing and plan changes all move it in ways this local
+ * +1-month roll would get wrong. Those orgs reset from the `invoice.paid`
+ * webhook instead (`src/app/api/webhooks/stripe/route.ts`), against the
+ * period Stripe itself just confirmed was paid for. Getting this filter
+ * wrong either double-credits a Stripe org (both paths firing) or leaves one
+ * permanently stale (neither does) — see the plan's verification steps.
  */
 export const creditPlanRefill = inngest.createFunction(
   {
@@ -44,6 +53,7 @@ export const creditPlanRefill = inngest.createFunction(
         .where(
           and(
             eq(subscriptions.status, "active"),
+            eq(subscriptions.provider, "manual"),
             lte(subscriptions.currentPeriodEnd, now),
           ),
         ),

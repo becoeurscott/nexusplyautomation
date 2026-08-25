@@ -6,6 +6,8 @@ import { friendlyError } from "@/lib/user-message";
 import { PlatformBadge } from "../_components/platform-badge";
 import { ConnectAccountButton } from "../_components/connect-account-button";
 import { rows, str } from "../_lib/normalize";
+import { PLANS } from "@/lib/i18n/pricing";
+import { ChangePlanButton, ManageBillingButton } from "./_billing-buttons";
 
 type Account = { id: string; name?: string; platform?: string };
 
@@ -58,6 +60,56 @@ export default async function SettingsPage() {
           )}
         </dl>
       </section>
+
+      {trial && (
+        <section className="mt-6 nx-glass rounded-2xl p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Billing</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                {trial.provider === "stripe"
+                  ? `You're on ${trial.planName}.`
+                  : "You're on a free trial — no card on file."}
+              </p>
+            </div>
+            {trial.provider === "stripe" && <ManageBillingButton />}
+          </div>
+
+          {(trial.expired || trial.status === "past_due") && (
+            <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-300">
+              {trial.status === "past_due"
+                ? "Your last payment didn't go through. Update your card to keep your plan active."
+                : "Your free trial has ended. Pick a plan below to keep posting."}
+            </div>
+          )}
+
+          {/* Plan tiers only shown before a real subscription exists — once
+              billed through Stripe, changing plans goes through the portal
+              above, not a fresh checkout (a second Checkout Session for an
+              already-subscribed customer would create a second subscription
+              instead of changing the existing one). */}
+          {trial.provider !== "stripe" && (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {PLANS.map((plan) => (
+                <div key={plan.code} className="rounded-xl border border-white/10 p-4">
+                  <div className="text-sm font-semibold text-white">{plan.name}</div>
+                  <div className="mt-1 text-xs text-slate-400">
+                    ${plan.priceUsd}/mo · {plan.credits.toLocaleString()} credits
+                  </div>
+                  <div className="mt-3">
+                    <ChangePlanButton
+                      planCode={plan.code}
+                      interval="monthly"
+                      label={plan.code === trial.planCode ? "Continue with this plan" : "Choose plan"}
+                      primary={plan.code === trial.planCode || plan.featured}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="mt-6 nx-glass rounded-2xl p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">

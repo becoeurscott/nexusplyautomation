@@ -151,7 +151,7 @@ export function Pricing() {
             time
           </p>
           <p className="mt-2 text-xs text-slate-500">
-            Pay by card, M-Pesa, MTN MoMo, Orange Money or bank transfer
+            Pay securely by card · Cancel any time
           </p>
         </div>
       </div>

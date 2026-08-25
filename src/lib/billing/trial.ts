@@ -66,6 +66,9 @@ export type TrialState = {
   /** The plan's monthly creation-credit allowance, for progress display. */
   monthlyCredits: number;
   planName: string;
+  planCode: string;
+  /** Who's actually billing this — "manual" is the trial itself, no real payment yet. */
+  provider: string;
   status: "trialing" | "active" | "past_due" | "canceled";
   /** Whole days left; 0 on the last day, never negative. */
   daysLeft: number;
@@ -78,9 +81,11 @@ export async function getTrialState(orgId: string): Promise<TrialState | null> {
   const [row] = await db
     .select({
       status: subscriptions.status,
+      provider: subscriptions.provider,
       endsAt: subscriptions.currentPeriodEnd,
       monthlyCredits: plans.includedCredits,
       planName: plans.name,
+      planCode: plans.code,
     })
     .from(subscriptions)
     .innerJoin(plans, eq(plans.id, subscriptions.planId))
@@ -94,8 +99,10 @@ export async function getTrialState(orgId: string): Promise<TrialState | null> {
   const msLeft = endsAt ? endsAt.getTime() - Date.now() : 0;
   return {
     status: row.status,
+    provider: row.provider,
     monthlyCredits: row.monthlyCredits,
     planName: row.planName,
+    planCode: row.planCode,
     endsAt,
     daysLeft: endsAt ? Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))) : 0,
     expired: row.status === "trialing" && endsAt !== null && msLeft <= 0,

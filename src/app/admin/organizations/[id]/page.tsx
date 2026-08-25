@@ -1,10 +1,22 @@
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { creditLedger, organizationMembers, organizations, users } from "@/db/schema";
+import {
+  creditLedger,
+  organizationMembers,
+  organizations,
+  plans,
+  subscriptions,
+  users,
+} from "@/db/schema";
 import { listConnections } from "@/lib/oauth/connections";
 import { platformLabel } from "@/app/app/_components/platform-badge";
-import { adjustCredits, disconnectSocialConnection, toggleOnboarded } from "./actions";
+import {
+  adjustCredits,
+  cancelStripeSubscription,
+  disconnectSocialConnection,
+  toggleOnboarded,
+} from "./actions";
 
 export default async function AdminOrgDetailPage({
   params,
@@ -30,6 +42,22 @@ export default async function AdminOrgDetailPage({
     .limit(30);
 
   const connections = await listConnections(id);
+
+  const [subscription] = await db
+    .select({
+      id: subscriptions.id,
+      provider: subscriptions.provider,
+      status: subscriptions.status,
+      providerSubRef: subscriptions.providerSubRef,
+      currentPeriodEnd: subscriptions.currentPeriodEnd,
+      billingInterval: subscriptions.billingInterval,
+      planName: plans.name,
+    })
+    .from(subscriptions)
+    .innerJoin(plans, eq(plans.id, subscriptions.planId))
+    .where(eq(subscriptions.orgId, id))
+    .orderBy(desc(subscriptions.createdAt))
+    .limit(1);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -105,6 +133,56 @@ export default async function AdminOrgDetailPage({
             {org.onboardingCompletedAt ? "Reset onboarding" : "Mark onboarded"}
           </button>
         </form>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          Subscription
+        </h2>
+        {subscription ? (
+          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{subscription.planName}</span>
+                <span
+                  className={
+                    "rounded-full px-2 py-0.5 text-[10px] uppercase " +
+                    (subscription.status === "active"
+                      ? "bg-emerald-500/15 text-emerald-300"
+                      : subscription.status === "past_due"
+                        ? "bg-red-500/15 text-red-300"
+                        : subscription.status === "canceled"
+                          ? "bg-white/10 text-slate-300"
+                          : "bg-amber-500/15 text-amber-300")
+                  }
+                >
+                  {subscription.status}
+                </span>
+              </div>
+              <div className="truncate text-xs text-slate-500">
+                {subscription.provider} · {subscription.billingInterval} · renews{" "}
+                {subscription.currentPeriodEnd
+                  ? subscription.currentPeriodEnd.toLocaleString()
+                  : "unknown"}
+              </div>
+            </div>
+            {subscription.provider === "stripe" &&
+              subscription.status !== "canceled" && (
+                <form action={cancelStripeSubscription}>
+                  <input type="hidden" name="orgId" value={org.id} />
+                  <input type="hidden" name="subscriptionId" value={subscription.id} />
+                  <button
+                    type="submit"
+                    className="shrink-0 rounded-lg border border-white/15 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5"
+                  >
+                    Cancel subscription
+                  </button>
+                </form>
+              )}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-500">No subscription.</p>
+        )}
       </section>
 
       <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">

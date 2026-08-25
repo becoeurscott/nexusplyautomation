@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
 import { writeLedger } from "@/lib/credits";
 import { db } from "@/db";
-import { auditEvents, organizations, socialConnections } from "@/db/schema";
+import { auditEvents, organizations, socialConnections, subscriptions } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { stripe } from "@/lib/payments/stripe";
 
 export async function adjustCredits(formData: FormData): Promise<void> {
   const session = await requireAdmin();
@@ -86,6 +87,59 @@ export async function disconnectSocialConnection(formData: FormData): Promise<vo
     entityType: "social_connection",
     entityId: connectionId,
     payload: conn ?? null,
+    result: "ok",
+  });
+
+  revalidatePath(`/admin/organizations/${orgId}`);
+}
+
+/**
+ * Support-side cancel for a Stripe subscription. The Billing Portal covers
+ * self-serve cancellation; this exists for cases that go through support
+ * instead (a refund request, a dispute, someone who can't reach the portal).
+ * Cancels on Stripe first — that's the actual billing truth — then lets the
+ * `customer.subscription.deleted` webhook (src/app/api/webhooks/stripe)
+ * reconcile our own `subscriptions` row, the same reconciliation path a
+ * customer-initiated cancellation already goes through. No local status
+ * write here: two independent paths writing the same field is exactly the
+ * kind of drift the webhook's "always resync from Stripe" design avoids.
+ */
+export async function cancelStripeSubscription(formData: FormData): Promise<void> {
+  const session = await requireAdmin();
+  const orgId = String(formData.get("orgId"));
+  const subscriptionId = String(formData.get("subscriptionId"));
+
+  const [sub] = await db
+    .select({ providerSubRef: subscriptions.providerSubRef, provider: subscriptions.provider })
+    .from(subscriptions)
+    .where(eq(subscriptions.id, subscriptionId));
+
+  if (!sub?.providerSubRef || sub.provider !== "stripe") {
+    throw new Error("Not a Stripe subscription.");
+  }
+
+  try {
+    await stripe.subscriptions.cancel(sub.providerSubRef);
+  } catch (e) {
+    await db.insert(auditEvents).values({
+      orgId,
+      actorUserId: session.user.id,
+      action: "admin.subscription.cancel",
+      entityType: "subscription",
+      entityId: subscriptionId,
+      result: "error",
+      errorMessage: e instanceof Error ? e.message : String(e),
+    });
+    throw e;
+  }
+
+  await db.insert(auditEvents).values({
+    orgId,
+    actorUserId: session.user.id,
+    action: "admin.subscription.cancel",
+    entityType: "subscription",
+    entityId: subscriptionId,
+    payload: { providerSubRef: sub.providerSubRef },
     result: "ok",
   });
 
