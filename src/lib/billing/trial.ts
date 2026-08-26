@@ -108,3 +108,35 @@ export async function getTrialState(orgId: string): Promise<TrialState | null> {
     expired: row.status === "trialing" && endsAt !== null && msLeft <= 0,
   };
 }
+
+export class TrialExpiredError extends Error {
+  constructor() {
+    super("Your plan needs attention. Update billing in Settings to keep posting.");
+    this.name = "TrialExpiredError";
+  }
+}
+
+/**
+ * Whether new content/spend should be blocked for this org right now: the
+ * trial window ran out, the last payment failed, or the subscription was
+ * canceled. `"active"` is never blocked here even if `currentPeriodEnd` looks
+ * stale — a real billing state (Stripe or manual) is trusted as-is; the
+ * refill cron/webhook are what keep it current, not this check.
+ */
+export function isBillingBlocked(trial: TrialState | null): boolean {
+  if (!trial) return false; // no subscription row is a provisioning gap, not a signal to block
+  return trial.status === "past_due" || trial.status === "canceled" || trial.expired;
+}
+
+/**
+ * The single gate for any write path that creates content or spends credits
+ * — composing/publishing a post, generating an image or video. Call this
+ * before doing the actual work, not after, so nothing is spent or created
+ * only to be rolled back.
+ */
+export async function assertBillingActive(orgId: string): Promise<void> {
+  const trial = await getTrialState(orgId);
+  if (isBillingBlocked(trial)) {
+    throw new TrialExpiredError();
+  }
+}

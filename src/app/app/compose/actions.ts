@@ -7,6 +7,7 @@ import { auditEvents } from "@/db/schema";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { friendlyError } from "@/lib/user-message";
+import { assertBillingActive, TrialExpiredError } from "@/lib/billing/trial";
 
 const PostSchema = z.object({
   content: z.string().min(1, "Write something to post first").max(10_000),
@@ -25,6 +26,16 @@ export async function createPost(
   formData: FormData,
 ): Promise<CreatePostResult> {
   const { workspace, session } = await requireWorkspace();
+
+  try {
+    await assertBillingActive(workspace.id);
+  } catch (e) {
+    if (e instanceof TrialExpiredError) {
+      return { ok: false, error: e.message };
+    }
+    throw e;
+  }
+
   const client = await zernioForWorkspace(workspace.id);
   if (!client) {
     return {

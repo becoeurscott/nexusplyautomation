@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireWorkspace } from "@/lib/workspace";
 import { zernioForWorkspace } from "@/lib/zernio/for-workspace";
 import { friendlyError } from "@/lib/user-message";
+import { getTrialState, isBillingBlocked } from "@/lib/billing/trial";
 import { NotReadyYet } from "../_components/not-ready";
 import { ComposeForm, type AccountOption } from "./compose-form";
 import { createPost } from "./actions";
@@ -14,6 +15,9 @@ export default async function ComposePage() {
   if (!client) {
     return <NotReadyYet title="Create post" what="posting" />;
   }
+
+  const trial = await getTrialState(workspace.id);
+  const blocked = isBillingBlocked(trial);
 
   let accounts: AccountOption[] = [];
   let error: string | null = null;
@@ -32,13 +36,27 @@ export default async function ComposePage() {
         you choose.
       </p>
 
+      {blocked && (
+        <div className="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-300">
+          {trial?.status === "past_due"
+            ? "Your last payment didn't go through, so posting is paused."
+            : trial?.status === "canceled"
+              ? "Your subscription was canceled, so posting is paused."
+              : "Your trial has ended, so posting is paused."}{" "}
+          <Link href="/app/settings" className="font-medium underline">
+            Update billing
+          </Link>{" "}
+          to keep posting.
+        </div>
+      )}
+
       {error && (
         <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
           {error}
         </div>
       )}
 
-      {!error && accounts.length === 0 && (
+      {!error && !blocked && accounts.length === 0 && (
         <div className="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-300">
           You don&apos;t have any accounts connected yet, so there&apos;s nowhere to post
           to.{" "}
@@ -49,7 +67,9 @@ export default async function ComposePage() {
         </div>
       )}
 
-      {accounts.length > 0 && <ComposeForm accounts={accounts} action={createPost} />}
+      {!blocked && accounts.length > 0 && (
+        <ComposeForm accounts={accounts} action={createPost} />
+      )}
     </div>
   );
 }

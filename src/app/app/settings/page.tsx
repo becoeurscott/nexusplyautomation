@@ -75,11 +75,15 @@ export default async function SettingsPage() {
             {trial.provider === "stripe" && <ManageBillingButton />}
           </div>
 
-          {(trial.expired || trial.status === "past_due") && (
+          {(trial.expired || trial.status === "past_due" || trial.status === "canceled") && (
             <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-300">
               {trial.status === "past_due"
                 ? "Your last payment didn't go through. Update your card to keep your plan active."
-                : "Your free trial has ended. Pick a plan below to keep posting."}
+                : trial.status === "canceled"
+                  ? trial.provider === "stripe"
+                    ? "Your subscription was canceled. Resubscribe from Manage billing to keep posting."
+                    : "Your subscription was canceled. Pick a plan below to keep posting."
+                  : "Your free trial has ended. Pick a plan below to keep posting."}
             </div>
           )}
 

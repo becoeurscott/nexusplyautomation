@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { debit, refund } from "./ledger";
+import { assertBillingActive } from "@/lib/billing/trial";
 
 /**
  * Wrap any provider call that costs credits. Debits before the call in the
@@ -23,6 +24,8 @@ export async function withCredits<T>(
   },
   fn: () => Promise<T>,
 ): Promise<{ result: T; balanceAfter: number; ledgerId: string | null }> {
+  await assertBillingActive(ctx.orgId);
+
   const debitRow = await db.transaction(async (tx) => {
     return debit(
       ctx.orgId,

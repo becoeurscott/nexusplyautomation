@@ -2,6 +2,7 @@ import { router, orgProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { withCredits } from "@/lib/credits";
+import { assertBillingActive } from "@/lib/billing/trial";
 import { zernioForOrg } from "@/lib/zernio/for-workspace";
 import { db } from "@/db";
 import { auditEvents, postsCache } from "@/db/schema";
@@ -88,6 +89,7 @@ export const postsRouter = router({
   publishNow: orgProcedure
     .input(z.object({ postId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      await assertBillingActive(ctx.orgId);
       const zernio = await zernioForOrg(ctx.orgId);
       if (!zernio) throw new TRPCError({ code: "PRECONDITION_FAILED" });
       const raw = await zernio.posts.publishNow(input.postId);
