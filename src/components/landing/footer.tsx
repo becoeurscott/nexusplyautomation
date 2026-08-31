@@ -26,8 +26,8 @@ const COLUMNS = [
     links: [
       { l: "About", h: "#why" },
       { l: "Contact", h: "mailto:hello@nexusply.ai" },
-      { l: "Privacy", h: "#" },
-      { l: "Terms", h: "#" },
+      { l: "Privacy", h: "/privacy" },
+      { l: "Terms", h: "/terms" },
     ],
   },
 ];
