@@ -30,22 +30,13 @@ import {
   bySoonest,
   compact,
   formatDateTime,
-  metricsOf,
   num,
   rows,
   str,
   toPosts,
   type SimplePost,
 } from "./_lib/normalize";
-
-const METRICS: { keys: string[]; label: string }[] = [
-  { keys: ["impressions", "views", "videoViews", "reach"], label: "Views" },
-  { keys: ["likes", "reactions", "favourites"], label: "Likes" },
-  { keys: ["comments", "commentCount", "replies"], label: "Comments" },
-  { keys: ["shares", "reposts", "retweets"], label: "Shares" },
-  { keys: ["followers", "followerCount", "newFollowers"], label: "Followers" },
-  { keys: ["engagementRate", "engagement"], label: "Engagement" },
-];
+import { readMetrics } from "./_lib/metrics";
 
 /** Fallback only — the dial normally scales to the org's own plan allowance. */
 const DIAL_FALLBACK = 500;
@@ -432,7 +423,7 @@ export default async function DashboardPage() {
           <Action href="/app/compose" title="Create a post" body="Write once, send everywhere." icon={<Send className="h-4 w-4" />} />
           <Action href="/app/posts" title="My posts" body="What went out and what's next." icon={<ListChecks className="h-4 w-4" />} />
           <Action href="/app/queue" title="Schedule" body="Choose when posts go out." icon={<CalendarClock className="h-4 w-4" />} soon />
-          <Action href="/app/analytics" title="Results" body="See how posts perform." icon={<BarChart3 className="h-4 w-4" />} soon />
+          <Action href="/app/analytics" title="Results" body="See how posts perform." icon={<BarChart3 className="h-4 w-4" />} />
           <Action href="/app/inbox" title="Messages" body="Reply to comments and mentions." icon={<Inbox className="h-4 w-4" />} soon />
           <Action href="/app/accounts" title="My accounts" body="Your connected accounts." icon={<Users2 className="h-4 w-4" />} />
           <Action href="/app/settings" title="Settings" body="Workspace and credits." icon={<Settings className="h-4 w-4" />} />
@@ -500,22 +491,6 @@ function Action({
       )}
     </Link>
   );
-}
-
-function readMetrics(raw: unknown): { label: string; value: string }[] {
-  const m = metricsOf(raw);
-  if (!m) return [];
-  const out: { label: string; value: string }[] = [];
-  for (const spec of METRICS) {
-    const v = num(m, ...spec.keys);
-    if (v === null) continue;
-    const isRate = spec.label === "Engagement";
-    out.push({
-      label: spec.label,
-      value: isRate ? `${v <= 1 ? (v * 100).toFixed(1) : v.toFixed(1)}%` : compact(v),
-    });
-  }
-  return out;
 }
 
 /**
