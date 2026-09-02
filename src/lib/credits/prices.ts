@@ -80,6 +80,12 @@ export const CREDIT_PRICE_SEED: CreditPriceSeed[] = [
   { actionKey: "ai.post.long_form", credits: 2, estCostUsd: 0.0014, description: "Write a long-form post" },
   { actionKey: "ai.carousel.copy", credits: 3, estCostUsd: 0.0025, description: "Write carousel copy" },
 
+  // ── Insight ───────────────────────────────────────────────────────────────
+  // Deliberately at the cheap end, next to hashtags: both get clicked over and
+  // over while someone edits a draft. A score you hesitate to re-run because
+  // it costs is a score nobody uses, so the price is set to be forgettable.
+  { actionKey: "ai.content.score", credits: 1, estCostUsd: 0.0005, description: "Score a post before you publish it" },
+
   // ── Writing (smart tier) ──────────────────────────────────────────────────
   { actionKey: "ai.reply.draft", credits: 2, estCostUsd: 0.003, description: "Draft an inbox reply in your brand voice" },
   { actionKey: "ai.script.generate", credits: 5, estCostUsd: 0.011, description: "Write a video script" },

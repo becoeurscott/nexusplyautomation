@@ -19,7 +19,7 @@ export type Activity = {
   /** Plain-language description; safe to render directly. */
   blurb: string;
   credits: number;
-  group: "write" | "visual" | "video" | "plan" | "publish";
+  group: "write" | "visual" | "video" | "plan" | "publish" | "insight";
 };
 
 function priceOf(actionKey: string): number {
@@ -100,6 +100,20 @@ export const ACTIVITIES: Activity[] = [
     blurb: `A ${VIDEO_BASE_SECONDS}-second clip for a hook or a loop. Longer clips cost ${VIDEO_CREDITS_PER_EXTRA_SECOND} credits per extra second.`,
     credits: priceOf("media.video.generate"),
     group: "video",
+  },
+  {
+    key: "post.score",
+    label: "Score a post",
+    blurb: "See how strong a post is — and what to fix — before it goes out.",
+    credits: priceOf("ai.content.score"),
+    group: "insight",
+  },
+  {
+    key: "video.analyze",
+    label: "Analyse a video",
+    blurb: "Find the strongest moments in a video you already have.",
+    credits: priceOf("cloneviral.video.analyze"),
+    group: "insight",
   },
   {
     key: "strategy.brand_voice",

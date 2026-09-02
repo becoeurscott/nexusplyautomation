@@ -27,7 +27,9 @@ export type AiTask =
   | "caption.generate"
   | "caption.polish"
   | "translate"
-  | "summarize";
+  | "summarize"
+  | "content.score"
+  | "hashtags.generate";
 
 const TASK_TIER: Record<AiTask, Tier> = {
   "script.generate": "smart",
@@ -37,6 +39,10 @@ const TASK_TIER: Record<AiTask, Tier> = {
   "caption.polish": "fast",
   translate: "fast",
   summarize: "fast",
+  // Both are clicked repeatedly while someone iterates on a draft, so they run
+  // on the cheap tier — a score you hesitate to re-run is a score nobody uses.
+  "content.score": "fast",
+  "hashtags.generate": "fast",
 };
 
 export class AiError extends Error {
@@ -57,6 +63,13 @@ export type ChatInput = {
   maxTokens?: number;
   /** Overrides the tier's model for this call only. */
   model?: string;
+  /**
+   * Ask the model for a JSON object rather than prose. Callers that parse the
+   * reply should set this AND still parse defensively — this raises the odds
+   * of valid JSON, it does not guarantee it, and not every model on the other
+   * side of OpenRouter honours the hint.
+   */
+  json?: boolean;
 };
 
 export function aiConfigured(): boolean {
@@ -90,6 +103,7 @@ export async function chat(input: ChatInput): Promise<string> {
       model,
       temperature: input.temperature ?? 0.7,
       max_tokens: input.maxTokens ?? 2_000,
+      ...(input.json ? { response_format: { type: "json_object" } } : {}),
       messages: [
         { role: "system", content: input.system },
         { role: "user", content: input.user },

@@ -6,7 +6,7 @@
  * tidied version of the original rather than a wrong guess.
  */
 const STATUSES: Record<string, { label: string; className: string }> = {
-  published: { label: "Posted", className: "bg-emerald-500/15/15 text-emerald-300" },
+  published: { label: "Posted", className: "bg-emerald-500/15 text-emerald-300" },
   scheduled: { label: "Scheduled", className: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)]" },
   queued: { label: "Waiting to go out", className: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)]" },
   pending: { label: "Waiting to go out", className: "bg-[color:var(--nx-blue)]/20 text-[color:var(--nx-blue-soft)]" },

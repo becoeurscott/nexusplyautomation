@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import type { CreatePostResult } from "./actions";
 import { platformLabel } from "../_components/platform-badge";
+import { ScorePanel } from "./_components/score-panel";
 
 export type AccountOption = { id: string; name: string; platform: string };
 
@@ -40,6 +41,19 @@ export function ComposeForm({
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
+    });
+  };
+
+  /** Appends only the tags the post doesn't already carry, so "Add all" twice
+   *  doesn't duplicate them. */
+  const appendHashtags = (tags: string[]) => {
+    setContent((prev) => {
+      const missing = tags.filter(
+        (t) => !new RegExp(`(^|\\s)${escapeRegExp(t)}(\\s|$)`, "i").test(prev),
+      );
+      if (missing.length === 0) return prev;
+      const sep = prev.trim().length === 0 ? "" : prev.endsWith("\n") ? "\n" : "\n\n";
+      return `${prev}${sep}${missing.join(" ")}`;
     });
   };
 
@@ -100,6 +114,9 @@ export function ComposeForm({
         {fieldErrors.content && (
           <div className="mt-1 text-xs text-red-600">{fieldErrors.content}</div>
         )}
+        <div className="mt-3">
+          <ScorePanel content={content} onAppendHashtags={appendHashtags} />
+        </div>
       </div>
 
       <div>
@@ -169,4 +186,9 @@ export function ComposeForm({
       </button>
     </form>
   );
+}
+
+/** Hashtags can contain regex metacharacters, so they're escaped before use. */
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
