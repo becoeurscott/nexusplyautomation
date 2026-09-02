@@ -44,6 +44,17 @@ export type PlanRow = {
 /** Annual billing gives two months free — a ~17% saving. */
 export const ANNUAL_MONTHS_CHARGED = 10;
 
+/**
+ * A `highlight` is a promise. Only list something a customer on that plan can
+ * actually do today.
+ *
+ * Two things are deliberately absent and should stay absent until they ship:
+ * **competitor tracking** (the publishing API has no way to read an account the
+ * customer doesn't own, so `trend_watchlists.competitor_handles` is unfillable
+ * — see src/lib/trends), and **the browser extension** (not built). Growth's
+ * line previously read "Advanced analytics and content optimisation", which
+ * sounded like both; it now says what the feature actually does.
+ */
 export const PLANS: PlanRow[] = [
   {
     code: "starter",
@@ -56,6 +67,7 @@ export const PLANS: PlanRow[] = [
       "500 creation credits a month",
       "Content planning and calendar",
       "Scheduling and multi-platform publishing",
+      "Post scoring and hashtag suggestions",
       "Basic analytics",
     ],
     cta: "Start Free Trial",
@@ -74,7 +86,7 @@ export const PLANS: PlanRow[] = [
       "Everything in Starter",
       "More connected accounts",
       "Engagement management",
-      "Advanced analytics and content optimisation",
+      "See what's working across your own posts",
     ],
     cta: "Start Free Trial",
     featured: true,
