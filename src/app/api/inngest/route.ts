@@ -5,9 +5,18 @@ import {
   creditPlanRefill,
   creditPlanRefillOnDemand,
   socialConnectionRefresh,
+  trendSnapshotDaily,
+  trendSnapshotOnDemand,
 } from "@/lib/inngest/functions";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [postPublish, creditPlanRefill, creditPlanRefillOnDemand, socialConnectionRefresh],
+  functions: [
+    postPublish,
+    creditPlanRefill,
+    creditPlanRefillOnDemand,
+    socialConnectionRefresh,
+    trendSnapshotDaily,
+    trendSnapshotOnDemand,
+  ],
 });
