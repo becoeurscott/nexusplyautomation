@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Same interlocking-chevron N as src/components/landing/brand.tsx, on the
+       brand's dark ground. A toolbar icon needs its own background: the app's
+       mark is white-on-transparent, which disappears against a light theme. -->
+  <rect width="32" height="32" rx="7" fill="#020817"/>
+  <path d="M6 24 L6 8 L12 8 L12 18 L20 8 L26 8 L26 24 L20 24 L20 14 L12 24 Z" fill="#ffffff"/>
+  <path d="M18 15 L26 8 L26 12 L20 18 Z" fill="#0a63f4"/>
+</svg>

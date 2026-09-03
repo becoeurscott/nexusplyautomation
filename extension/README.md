@@ -32,8 +32,6 @@ enough to be worth maintaining.
 
 ## Not done yet
 
-- Icons (`icons/`) — the manifest currently declares none, so Chrome uses a
-  default placeholder.
 - Store submission. Chrome Web Store review for a content-script extension that
   reads third-party pages typically takes days to weeks and can bounce on
   permissions justification. Firefox AMO is a separate submission.
