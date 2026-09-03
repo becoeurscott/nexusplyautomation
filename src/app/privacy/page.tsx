@@ -84,7 +84,41 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white">5. Third parties we work with</h2>
+            <h2 className="text-lg font-semibold text-white">
+              5. The NexusPly browser extension
+            </h2>
+            <p className="mt-3">
+              If you install our browser extension, it works like this:
+            </p>
+            <ul className="mt-3 list-disc space-y-2 pl-5">
+              <li>
+                It only runs on TikTok and YouTube Studio pages, and only to show you
+                the NexusPly panel.
+              </li>
+              <li>
+                <span className="text-white">It does not read the pages you visit.</span>{" "}
+                The only text it sends us is what you type or paste into the
+                extension&apos;s own box yourself.
+              </li>
+              <li>
+                That text is sent to NexusPly to score it or suggest hashtags, exactly
+                as if you had typed it into the app. It is not stored afterwards and is
+                never sold or shared.
+              </li>
+              <li>
+                Your access token is stored only in your own browser. You can revoke it
+                at any time from Settings, which immediately stops the extension from
+                working.
+              </li>
+              <li>
+                It does not track your browsing, read your history, or collect anything
+                from the pages you view.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-white">6. Third parties we work with</h2>
             <p className="mt-3">
               NexusPly is built on top of a small number of infrastructure and platform
               providers, each of which processes only what&apos;s necessary to perform
@@ -103,7 +137,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white">6. Your controls</h2>
+            <h2 className="text-lg font-semibold text-white">7. Your controls</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5">
               <li>Disconnect any connected social account at any time from Settings — this immediately deletes its stored tokens.</li>
               <li>Export or delete your account data by contacting us.</li>
@@ -112,7 +146,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white">7. Data retention</h2>
+            <h2 className="text-lg font-semibold text-white">8. Data retention</h2>
             <p className="mt-3">
               We retain account and content data for as long as your account is active,
               and for a limited period after cancellation in case you choose to
@@ -121,7 +155,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white">8. Changes to this policy</h2>
+            <h2 className="text-lg font-semibold text-white">9. Changes to this policy</h2>
             <p className="mt-3">
               If we make material changes to this policy, we&apos;ll notify active
               account holders by email before the changes take effect.
@@ -129,7 +163,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white">9. Contact us</h2>
+            <h2 className="text-lg font-semibold text-white">10. Contact us</h2>
             <p className="mt-3">
               Questions about this policy or your data? Email{" "}
               <a href="mailto:hello@nexusply.ai" className="text-white underline">
