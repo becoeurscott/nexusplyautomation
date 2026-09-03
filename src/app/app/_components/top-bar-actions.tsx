@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Coins, Send } from "lucide-react";
+import { TrialTimer } from "./trial-timer";
 
 /**
  * The top bar used to hold Search, Share, Invite, a notification bell and a
@@ -16,11 +17,16 @@ export function TopBarActions({
   name,
   email,
   balance,
+  trialEndsAtIso,
+  serverNowIso,
 }: {
   initials: string;
   name: string;
   email: string;
   balance: number;
+  /** Only set while the workspace is actually on a trial. */
+  trialEndsAtIso?: string | null;
+  serverNowIso: string;
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -33,6 +39,10 @@ export function TopBarActions({
           <Send className="h-4 w-4" /> Create post
         </motion.span>
       </Link>
+
+      {trialEndsAtIso && (
+        <TrialTimer endsAtIso={trialEndsAtIso} serverNowIso={serverNowIso} />
+      )}
 
       <Link
         href="/app/settings"

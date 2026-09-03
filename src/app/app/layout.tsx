@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireWorkspace } from "@/lib/workspace";
 import { getBalance } from "@/lib/credits";
+import { getTrialState } from "@/lib/billing/trial";
 import { SignOutButton } from "./_components/sign-out-button";
 import { SidebarNav } from "./_components/sidebar-nav";
 import { PageTransition } from "./_components/page-transition";
@@ -20,6 +21,11 @@ import { HelpCircle } from "lucide-react";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { session, workspace } = await requireWorkspace();
   const balance = await getBalance(workspace.id);
+  const trial = await getTrialState(workspace.id);
+  // Only a live trial gets a countdown. Showing one to a paying customer would
+  // be alarming and meaningless — their subscription renews, it doesn't run out.
+  const trialEndsAtIso =
+    trial?.status === "trialing" && trial.endsAt ? trial.endsAt.toISOString() : null;
   const initials = (session.user.name ?? session.user.email)
     .split(" ")
     .map((s) => s[0])
@@ -80,6 +86,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           name={session.user.name ?? "You"}
           email={session.user.email}
           balance={balance}
+          trialEndsAtIso={trialEndsAtIso}
+          serverNowIso={new Date().toISOString()}
         />
       }
     >
