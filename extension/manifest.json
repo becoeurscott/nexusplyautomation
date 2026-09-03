@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "NexusPly",
+  "version": "0.1.0",
+  "description": "Score your post and get hashtag suggestions while you browse TikTok and YouTube.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://nexusplyautomation.com/*"
+  ],
+  "background": { "service_worker": "src/background/worker.js", "type": "module" },
+  "action": { "default_popup": "src/popup/popup.html", "default_title": "NexusPly" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.tiktok.com/*", "https://studio.youtube.com/*"],
+      "js": ["src/content/overlay.js"],
+      "css": ["src/content/overlay.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

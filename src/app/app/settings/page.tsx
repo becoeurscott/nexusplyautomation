@@ -8,6 +8,8 @@ import { ConnectAccountButton } from "../_components/connect-account-button";
 import { rows, str } from "../_lib/normalize";
 import { PLANS } from "@/lib/i18n/pricing";
 import { ChangePlanButton, ManageBillingButton } from "./_billing-buttons";
+import { ExtensionTokens } from "./_extension-tokens";
+import { listApiTokens } from "@/lib/api-tokens";
 
 type Account = { id: string; name?: string; platform?: string };
 
@@ -16,6 +18,7 @@ export default async function SettingsPage() {
   const client = await zernioForWorkspace(workspace.id);
   const balance = await getBalance(workspace.id);
   const trial = await getTrialState(workspace.id);
+  const tokens = await listApiTokens(workspace.id);
 
   let accounts: Account[] = [];
   let error: string | null = null;
@@ -114,6 +117,16 @@ export default async function SettingsPage() {
           )}
         </section>
       )}
+
+      <section className="mt-6 nx-glass rounded-2xl p-6">
+        <h2 className="text-lg font-semibold">Browser extension</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          Score posts and get hashtag suggestions while you&apos;re browsing TikTok or
+          YouTube. Create a token below and paste it into the extension to connect it
+          to this workspace.
+        </p>
+        <ExtensionTokens tokens={tokens} />
+      </section>
 
       <section className="mt-6 nx-glass rounded-2xl p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">

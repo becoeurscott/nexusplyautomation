@@ -1,0 +1,3 @@
+/* Styles live in the shadow root (overlay.js) so the host page cannot
+   restyle the panel and our rules cannot leak into theirs. This file exists
+   because the manifest declares it; keep it empty on purpose. */

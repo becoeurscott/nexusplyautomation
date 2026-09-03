@@ -9,6 +9,8 @@ import {
   type BillingInterval,
 } from "@/lib/payments/checkout";
 import { friendlyError } from "@/lib/user-message";
+import { revalidatePath } from "next/cache";
+import { createApiToken, revokeApiToken } from "@/lib/api-tokens";
 import type { PlanCode } from "@/lib/i18n/pricing";
 
 export type BillingActionState = { ok: false; message: string } | null;
@@ -57,4 +59,43 @@ export async function manageBilling(
     return { ok: false, message: friendlyError(e, "billing.portal") };
   }
   redirect(url);
+}
+
+/* ── Browser-extension tokens ───────────────────────────────────────────── */
+
+export type TokenActionState =
+  | { ok: true; token: string }
+  | { ok: false; message: string }
+  | null;
+
+/**
+ * Creates a personal access token for the browser extension.
+ *
+ * The plaintext token is returned in the action state and shown once. It is
+ * never stored — only a SHA-256 digest is — so there is no way to display it
+ * again later, which is the point.
+ */
+export async function createExtensionToken(
+  _prev: TokenActionState,
+  formData: FormData,
+): Promise<TokenActionState> {
+  const { workspace } = await requireWorkspace();
+  const name = String(formData.get("name") ?? "").trim();
+
+  try {
+    const { token } = await createApiToken(workspace.id, name);
+    revalidatePath("/app/settings");
+    return { ok: true, token };
+  } catch (e) {
+    return { ok: false, message: friendlyError(e, "token.create") };
+  }
+}
+
+export async function revokeExtensionToken(formData: FormData): Promise<void> {
+  const { workspace } = await requireWorkspace();
+  const tokenId = String(formData.get("tokenId") ?? "");
+  if (!tokenId) return;
+
+  await revokeApiToken(workspace.id, tokenId);
+  revalidatePath("/app/settings");
 }
