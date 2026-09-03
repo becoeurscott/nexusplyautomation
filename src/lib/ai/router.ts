@@ -29,7 +29,10 @@ export type AiTask =
   | "translate"
   | "summarize"
   | "content.score"
-  | "hashtags.generate";
+  | "hashtags.generate"
+  | "idea.generate"
+  | "post.long_form"
+  | "carousel.copy";
 
 const TASK_TIER: Record<AiTask, Tier> = {
   "script.generate": "smart",
@@ -43,6 +46,13 @@ const TASK_TIER: Record<AiTask, Tier> = {
   // on the cheap tier — a score you hesitate to re-run is a score nobody uses.
   "content.score": "fast",
   "hashtags.generate": "fast",
+  // Writing helpers. Fast tier deliberately: these are drafting aids someone
+  // regenerates until it reads right, so latency and cost matter more than the
+  // last few points of quality. `caption.generate` stays on smart because it's
+  // the one whose output is most often published close to as-written.
+  "idea.generate": "fast",
+  "post.long_form": "fast",
+  "carousel.copy": "fast",
 };
 
 export class AiError extends Error {

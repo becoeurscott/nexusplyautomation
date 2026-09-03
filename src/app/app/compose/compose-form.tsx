@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import type { CreatePostResult } from "./actions";
 import { platformLabel } from "../_components/platform-badge";
 import { ScorePanel } from "./_components/score-panel";
+import { WritePanel } from "./_components/write-panel";
 
 export type AccountOption = { id: string; name: string; platform: string };
 
@@ -94,6 +95,10 @@ export function ComposeForm({
         {fieldErrors.accountIds && (
           <div className="mt-1 text-xs text-red-600">{fieldErrors.accountIds}</div>
         )}
+      </div>
+
+      <div className="-mt-2">
+        <WritePanel content={content} onUse={setContent} />
       </div>
 
       <div>
