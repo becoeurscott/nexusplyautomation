@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   BarChart3,
+  CalendarRange,
   Inbox,
   LayoutDashboard,
   ListChecks,
@@ -25,6 +26,7 @@ import {
 const NAV = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard },
   { href: "/app/compose", label: "Create post", icon: MessageSquarePlus },
+  { href: "/app/packs", label: "Content packs", icon: CalendarRange },
   { href: "/app/posts", label: "My posts", icon: ListChecks },
   { href: "/app/queue", label: "Schedule", icon: Radar },
   { href: "/app/analytics", label: "Results", icon: BarChart3 },

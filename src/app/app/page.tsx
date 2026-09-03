@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   BarChart3,
   CalendarClock,
+  CalendarRange,
   Check,
   Coins,
   Inbox,
@@ -421,6 +422,7 @@ export default async function DashboardPage() {
       <Card title="Everything you can do" icon={<Sparkles className="h-4 w-4" />}>
         <StaggerGroup className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4" delay={0.3}>
           <Action href="/app/compose" title="Create a post" body="Write once, send everywhere." icon={<Send className="h-4 w-4" />} />
+          <Action href="/app/packs" title="Content packs" body="A week or month of posts at once." icon={<CalendarRange className="h-4 w-4" />} />
           <Action href="/app/posts" title="My posts" body="What went out and what's next." icon={<ListChecks className="h-4 w-4" />} />
           <Action href="/app/queue" title="Schedule" body="Choose when posts go out." icon={<CalendarClock className="h-4 w-4" />} soon />
           <Action href="/app/analytics" title="Results" body="See how posts perform." icon={<BarChart3 className="h-4 w-4" />} />

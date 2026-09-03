@@ -32,7 +32,8 @@ export type AiTask =
   | "hashtags.generate"
   | "idea.generate"
   | "post.long_form"
-  | "carousel.copy";
+  | "carousel.copy"
+  | "pack.generate";
 
 const TASK_TIER: Record<AiTask, Tier> = {
   "script.generate": "smart",
@@ -53,6 +54,12 @@ const TASK_TIER: Record<AiTask, Tier> = {
   "idea.generate": "fast",
   "post.long_form": "fast",
   "carousel.copy": "fast",
+  // Content packs are compositions of the writing actions above, so they run on
+  // the same tier those do. Keeping them on `fast` is also what makes the
+  // seeded cost estimate for bundle.* honest — pricing them against fast-tier
+  // text and then quietly calling the smart model would understate real cost in
+  // the margin check.
+  "pack.generate": "fast",
 };
 
 export class AiError extends Error {
